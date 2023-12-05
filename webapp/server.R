@@ -1,4 +1,4 @@
-server <- function(input, output) {
+server_app = function(input, output) {
 
   output$text1 = renderPrint({
     

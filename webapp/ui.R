@@ -1,14 +1,35 @@
 
-# App UI =====================================================
 
-ui =  page_navbar(
+### UI WRAPPER ###     
+
+
+
+
+
+# : ============================================================================================================================
+
+
+
+
+ui_app <- 
+   
+   # HEADER ================================================================================
+
+
+navbarPage(
+   
+   ## Setup ------------------------------------
+   
+   title = "Macroeconomic Tracker",
+   
+   header = tagList(
+      
+      use_googlefont("Exo 2"),
+      use_theme(zerotoonec_theme)),
   
-  ## Setup ------------------------------------
-    theme = bs_theme(bootswatch = "minty"),
-    window_title = '021 Platform',
-    title = "021",
     
   ## Pages ------------------------------------
+  
   tabPanel(
     "Explorer",
     page_explorer
