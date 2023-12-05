@@ -1,0 +1,1 @@
+page_analyzer =  fluidPage('Page 2')
