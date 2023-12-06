@@ -1,40 +1,38 @@
 
+# Page Explorer ================================================================================
 
 page_explorer =  fluidPage(
-  
+
   ## Header
   h1('Explorer'),
-  
+
   ## Prices Select & Plot
   fluidRow(
     ## Fetch data
     column(3,
+           wellPanel(
              h5("Search companies"),
-               selectInput(
-                 inputId = 'selectize1',
-                 label = NULL,
-                 choices = euronext_data$company_name,
-                 multiple = TRUE
-               )
+               in_exp_select_ticker,
+               in_exp_button_fetchTickers
+           ) ### wellpanel
           ), ### column
     ## Plot data
     column(9,
            card(
              card_body(
-               textOutput('text1'),
-               highchartOutput(outputId = 'plot1', width = '100%', height = '500px')
+               highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '500px')
              )
            ) ### card
-    )    
-    
+    )
+
         ), ### row
-  
+
   ## Prices Table
   fluidRow(
     ## Table
     reactableOutput(outputId = 'table1')
   ) ### row
-  
+
   ## END
-  
+
   )

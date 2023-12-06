@@ -13,10 +13,11 @@ base_path = 'webapp'
 
 source(file.path(base_path, 'setup.R'))
 source(file.path(base_path, 'theme.R'))
-#source(file.path('setup', "03.preparation.R"))
+source(file.path(base_path, 'functions', "financial.R"))
 
 
 # UI ===============================================================
+source(file.path(base_path, 'pages', "inputs.R"))
 source(file.path(base_path, 'pages', '01_explorer.R'))
 source(file.path(base_path, 'pages', '02_analyzer.R'))
 source(file.path(base_path, 'ui.R'))

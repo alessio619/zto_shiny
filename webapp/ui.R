@@ -11,7 +11,7 @@
 
 
 
-ui_app <- 
+ui_app =
    
    # HEADER ================================================================================
 
@@ -20,26 +20,23 @@ navbarPage(
    
    ## Setup ------------------------------------
    
-   title = "Macroeconomic Tracker",
+   title = "Zero2One - ADMP",
    
-   header = tagList(
-      
-      use_googlefont("Exo 2"),
-      use_theme(zerotoonec_theme)),
-  
-    
-  ## Pages ------------------------------------
-  
-  tabPanel(
-    "Explorer",
-    page_explorer
-  ),
-  
-  tabPanel(
-    "Other",
-    page_analyzer
-  )
-  
-  ## END 
-  
+   theme = zerotoonec_theme,
+   
+   
+   ## Pages ------------------------------------
+
+   tabPanel(
+      "Explorer",
+      page_explorer
+   ),
+   
+   tabPanel(
+      "Other",
+      page_analyzer
+   )
+   
+   ## END 
+   
 )

@@ -6,25 +6,23 @@
 
 ## Packages ----------------------------------------------------------------
 
-library(shiny)
-library(bslib)
-library(data.table)
-library(quantmod)
-library(reactable)
-library(reactable.extras)
-library(highcharter)
-library(fresh)
-library(waiter)
+box::use(shiny[...])
+box::use(bslib[...])
+#box::use(waiter[...])
+box::use(data.table[...])
+box::use(quantmod[...])
+box::use(reactable[...])
+#box::use(reactable.extras[...])
+box::use(highcharter[...])
+#box::use(shinyWidgets[...])
+
 
 
 ### Additional Options
 
 options(shiny.maxRequestSize = 200*1024^2)
 
-cat('Macroeconomics Toolset - LOADING: Please wait while app is getting ready in your default browser...')
+cat('021 ADMP - LOADING: Please wait while app is getting ready in your default browser...')
 
 
-euronext_data = data.table(
-  company_name = c('Comer Industries', 'Ferretti', 'Italian Design Brand'),
-  company_ticker = c('COM.MI', 'YACHT.MI', 'IDB.MI')
-)
+engm_equities_list = fread(file.path('data', 'engm_equities_list.csv'))

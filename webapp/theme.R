@@ -1,74 +1,28 @@
 
+# Theme ================================================================================
 
-zerotoonec_theme = 
-   
-   create_theme(
-      
-      bs_vars_font(
-         
-         size_base = "14px",
-         family_sans_serif = "'Exo 2', sans-serif"
-      ),
-      
-      bs_vars_navbar(
-         
-         padding_horizontal = "15px",
-         default_bg = "#112446",
-         default_color = "#FFFFFF",
-         default_link_color = "#FFFFFF",
-         default_link_active_color = "#FFFFFF",
-         default_link_hover_color = "#A4A4A4"
-      ),
-      
-      bs_vars_button(
-         
-         font_weight = 500,
-         border_radius_base = 0,
-         default_color = "#112446",
-         default_border = "#112446",
-         primary_color = "#FFF",
-         primary_bg = "#112446",
-         primary_border = "#112446"
-      ),
-      
-      bs_vars_color(
-         
-         brand_primary = "#112446",
-         brand_success = "#7bc043",
-         brand_info = "#0392cf",
-         brand_warning = "#f37736",
-         brand_danger = "#ee4035"
-      ),
-      
-      bs_vars_wells(
-         
-         bg = "#FFF",
-         border = "#3f2d54"
-      ),
-      
-      bs_vars_global(
-         
-         grid_columns = 12,
-         grid_gutter_width = "15px"
-      ),
-      
-      bs_vars_tabs(
-         
-         border_color = "#112446",
-         active_link_hover_bg = "#FFF",
-         active_link_hover_color = "#112446",
-         active_link_hover_border_color = "#112446",
-         link_hover_border_color = "#112446"
-      ),
-      
-      bs_vars_modal(
-         
-         md = "80%",backdrop_bg = "#112446",
-         backdrop_opacity = 1,
-         header_border_color = "#112446",
-         footer_border_color = "#112446"
-      )
-      
-      
-      
+zerotoonec_theme =
+   bs_theme(
+      bootswatch = "zephyr",
+      base_font = font_google("Inter"),
+      heading_font = font_google("Young Serif"),
+      heading_weight = 'bold',
+      navbar_bg = "#fff",
+      primary = '#75A5B7',
+      secondary = '#8DC2C9',
+      info = '#4C6279',
+      danger = '#F29191',
+      warning = '#f37736',
+      success = '#6EBDAB',
+      'navbar-bg' = '#fff',
+      'navbar-light-bg' = '#fff',
+      'navbar-light-color' = '#6c757d',
+      'navbar-light-active-color' = '#4C6279',
+      'navbar-light-hover-color' = '#75A5B7',
+      'body-bg' = '#f9f9f9',
+      'headings-color' = '#4C6279',
+      'headings-font-weight' = 'bold',
+      'navbar-brand-padding-x' = '100px',
+      'body-color' = '#6c757d'
    )
+

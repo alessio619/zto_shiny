@@ -1,1 +1,1 @@
-page_analyzer =  fluidPage('Page 2')
+page_analyzer =  'Page 2'
