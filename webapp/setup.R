@@ -26,3 +26,8 @@ cat('021 ADMP - LOADING: Please wait while app is getting ready in your default 
 
 
 engm_equities_list = fread(file.path('data', 'engm_equities_list.csv'))
+engm_equities_list[, ticker_code_2 := ticker_code]
+engm_equities_list[, ticker_code := paste0(ticker_code, '.MI')]
+
+
+
