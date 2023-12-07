@@ -26,7 +26,7 @@ in_exp_dataType =
    radioButtons(
       inputId = 'exp_dataType',
       label = NULL,
-      choices = c('Daily' = 'daily', 'Weekly' = 'weekly', 'Monthly' = 'monthly'),
+      choices = c('Daily  ' = 'daily', 'Weekly' = 'weekly', 'Monthly' = 'monthly'),
       selected = 'weekly',
       width = '100%',
       inline = TRUE

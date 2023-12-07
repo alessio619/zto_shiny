@@ -35,16 +35,6 @@ fetch_tickers = function(TICKERS, INIT_DATE = '2021-01-01', END_DATE = Sys.Date(
    # Remove NULL entries (symbols with errors)
    data_list = Filter(Negate(is.null), data_list)
    
-   if (length(data_list) == 0) {
-      cat("No $TICKERS retrieved.\n")
-      return(NULL)
-   }
-   
-   if (length(data_list) == length(TICKERS)) {
-      cat("All $TICKERS successfully fetched.\n")
-      return(NULL)
-   }   
-   
    final_data = rbindlist(data_list)
    return(final_data)
    

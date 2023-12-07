@@ -4,13 +4,14 @@
 page_explorer =  fluidPage(
 
   ## Header
-  h1('Explorer'),
+  h2('Explorer'), hr(),
 
   ## Prices Select & Plot
   fluidRow(
     ## Fetch data
     column(3,
            wellPanel(
+             br(),
              h6("Search companies", style = 'color: #4C6279'),
                in_exp_select_ticker,
              br(),
@@ -20,7 +21,8 @@ page_explorer =  fluidPage(
              h6("Time granularity", style = 'color: #4C6279'),
                in_exp_dataType,
              br(),
-               in_exp_button_fetchTickers
+               in_exp_button_fetchTickers,
+             br(),
            ) ### wellpanel
           ), ### column
     ## Plot data
