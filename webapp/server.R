@@ -12,7 +12,7 @@ server_app = function(input, output) {
       
    })
    
-   ### Fetch and Retrieve Data
+   ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
       
       req(ticker_list())
@@ -25,25 +25,48 @@ server_app = function(input, output) {
       
    })
    
-   ### Plot Time Series
+   ### Plot Tickers Data
    output$exp_plot_tickersSeries = renderHighchart({
      
       req(dt_fetchedTickers())
      
       hchart(dt_fetchedTickers(),
              "line",
-             hcaes(x = index, y = price, group = ticker))
+             hcaes(x = index, y = price, group = ticker)) |> 
+         hc_xAxis(title = '', lineWidth = 0) |> 
+         hc_yAxis(title = '')  |> 
+         hc_legend(align = "right", verticalAlign = "top", layout = "horizontal")
     
   })
    
    
-   ### Table Retrieved companies information
+   ### Table Retrieved companies data
    output$exp_table_tickersSeries = renderReactable({
       
       req(dt_fetchedTickers())
       
-      reactable(req(dt_fetchedTickers()))
+      reactable(dt_fetchedTickers(),
+                highlight = TRUE,
+                outlined = FALSE,
+                compact = TRUE,
+                wrap = FALSE,
+                defaultPageSize = 12)
+      
    })
+   
+   
+   ### Download Tickers Data
+   output$exp_button_download = downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset', ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_fetchedTickers(), file)
+      }
+   )   
    
    
    

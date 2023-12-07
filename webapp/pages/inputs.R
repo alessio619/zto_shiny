@@ -43,10 +43,10 @@ in_exp_button_fetchTickers =
    )
 
 in_exp_button_download = 
-   actionButton(
-      inputId = 'exp_button_download',
+   downloadButton(
+      outputId = 'exp_button_download',
       label = 'Download',
       class = 'btn-danger',
       icon = shiny::icon("floppy-disk"),
-      width = '100%'
+      style = 'width: 100%;'
    )

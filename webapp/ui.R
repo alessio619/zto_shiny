@@ -3,7 +3,8 @@
 ### UI WRAPPER ###     
 
 
-
+options(reactable.theme = zto_reactable_theme)
+options(highcharter.theme = zto_hc_theme)
 
 
 # : ============================================================================================================================
@@ -20,20 +21,16 @@ navbarPage(
    
    ## Setup ------------------------------------
    
-   title = "Zero2One - ADMP",
+   title = "zero2one - ADMP",
    
    theme = zerotoonec_theme,
    
    tags$style(HTML(
-      '.nav.navbar-nav {margin: 20px; height: 45px;}'
+      '.nav.navbar-nav {margin: 20px; height: 45px; padding-right: 15px; font-size: 15px;}'
    )),
    
    tags$style(HTML(
-      '.nav.navbar-nav-item {padding: 20px;}'
-   )),   
-   
-   tags$style(HTML(
-      '.navbar-brand {padding: 25px;}'
+      '.navbar-brand {padding: 25px; font-weight: bold; font-size: 24px;}'
    )),
    
    

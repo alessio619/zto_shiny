@@ -4,7 +4,15 @@
 page_explorer =  fluidPage(
 
   ## Header
-  h2('Explorer'), hr(),
+   
+  fluidRow( 
+     column(width = 12,
+         card(
+            h2('Explorer'),
+            span('Web browse from Yahoo! Finance the latest data for the Euronext Growth Milano listed companies.')
+         ) ### card
+     ) ### column
+  ), ### row
 
   ## Prices Select & Plot
   fluidRow(
