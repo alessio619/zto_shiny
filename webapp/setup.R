@@ -12,9 +12,9 @@ box::use(bslib[...])
 box::use(data.table[...])
 box::use(quantmod[...])
 box::use(reactable[...])
-#box::use(reactable.extras[...])
+box::use(reactable.extras[...])
 box::use(highcharter[...])
-#box::use(shinyWidgets[...])
+box::use(shinyWidgets[...])
 
 
 

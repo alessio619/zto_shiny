@@ -35,7 +35,7 @@ server_app = function(input, output) {
              hcaes(x = index, y = price, group = ticker)) |> 
          hc_xAxis(title = '', lineWidth = 0) |> 
          hc_yAxis(title = '')  |> 
-         hc_legend(align = "right", verticalAlign = "top", layout = "horizontal")
+         hc_legend(align = "left", verticalAlign = "top", layout = "horizontal")
     
   })
    
