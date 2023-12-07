@@ -23,13 +23,13 @@ in_exp_dateRange =
 
 ## Tickers Type of Data granularity
 in_exp_dataType =
-   radioButtons(
+   shinyWidgets::radioGroupButtons(
       inputId = 'exp_dataType',
       label = NULL,
       choices = c('Daily  ' = 'daily', 'Weekly' = 'weekly', 'Monthly' = 'monthly'),
       selected = 'weekly',
       width = '100%',
-      inline = TRUE
+      justified = TRUE
    )
 
 ### Fetch Tickers button
@@ -38,6 +38,15 @@ in_exp_button_fetchTickers =
       inputId = 'exp_button_fetchTickers',
       label = 'Fetch',
       class = 'btn-primary',
-      icon = shiny::icon("download"),
+      icon = shiny::icon("chevron-down"),
+      width = '100%'
+   )
+
+in_exp_button_download = 
+   actionButton(
+      inputId = 'exp_button_download',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk"),
       width = '100%'
    )

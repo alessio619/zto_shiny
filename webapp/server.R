@@ -37,6 +37,15 @@ server_app = function(input, output) {
   })
    
    
+   ### Table Retrieved companies information
+   output$exp_table_tickersSeries = renderReactable({
+      
+      req(dt_fetchedTickers())
+      
+      reactable(req(dt_fetchedTickers()))
+   })
+   
+   
    
    ## END --------------
   

@@ -19,6 +19,7 @@ zerotoonec_theme =
       'navbar-light-active-color' = '#fff',
       'navbar-light-hover-color' = '#8DC2C9',      
       'body-bg' = '#f9f9f9',
-      'body-color' = '#6c757d'
+      'body-color' = '#6c757d',
+      'heading-color' = '#6c757d'
    )
 
