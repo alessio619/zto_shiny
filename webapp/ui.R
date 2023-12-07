@@ -24,6 +24,18 @@ navbarPage(
    
    theme = zerotoonec_theme,
    
+   tags$style(HTML(
+      '.nav.navbar-nav {margin: 20px; height: 45px;}'
+   )),
+   
+   tags$style(HTML(
+      '.nav.navbar-nav-item {padding: 20px;}'
+   )),   
+   
+   tags$style(HTML(
+      '.navbar-brand {padding: 25px;}'
+   )),
+   
    
    ## Pages ------------------------------------
 
@@ -34,7 +46,7 @@ navbarPage(
    
    tabPanel(
       "Other",
-      page_analyzer
+      page_companies
    )
    
    ## END 

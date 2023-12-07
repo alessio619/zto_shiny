@@ -19,7 +19,7 @@ source(file.path(base_path, 'functions', "financial.R"))
 # UI ===============================================================
 source(file.path(base_path, 'pages', "inputs.R"))
 source(file.path(base_path, 'pages', '01_explorer.R'))
-source(file.path(base_path, 'pages', '02_analyzer.R'))
+source(file.path(base_path, 'pages', '02_companies.R'))
 source(file.path(base_path, 'ui.R'))
 
 
