@@ -4,7 +4,6 @@
 zerotoonec_theme =
    bs_theme(
       bootswatch = "litera",
-      base_font = font_google("Inter"),
       primary = '#75A5B7',
       secondary = '#8DC2C9',
       info = '#4C6279',
