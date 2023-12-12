@@ -17,7 +17,7 @@ box::use(reactable[...])
 box::use(reactable.extras[...])
 box::use(highcharter[...])
 box::use(shinyWidgets[...])
-
+box::use(bsicons[...])
 
 
 ## Additional Options ----------------------------------------------------------------
@@ -46,3 +46,10 @@ engm_equities_list[, flag_active := fifelse(date_lastTrade > (Sys.Date() - 30), 
 # write.csv2(engm_equities_list, file.path('data', 'engm_equities_list.csv')) 
 # 
 # 
+
+
+
+
+
+
+

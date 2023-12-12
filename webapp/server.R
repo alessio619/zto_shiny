@@ -36,11 +36,39 @@ server_app = function(input, output) {
       
       xts = xtw[input$exp_dataAgg][[1]]
       
-      dts = as.data.table(xts)
+      ### roll mean
+      if(input$exp_dataCalc == 'calc_price') {xtss = copy(xts)}
+      if(input$exp_dataCalc == 'calc_ret') {xtss = PerformanceAnalytics::Return.calculate(xts, method = 'log')}
+      if(input$exp_dataCalc == 'calc_cumret') {
+         xtw_ret = PerformanceAnalytics::Return.calculate(xts, method = 'log')
+         xtw_ret = xtw_ret[-2]
+         xtss = apply(xtw_ret, 2, cumsum)
+         }
+      if(input$exp_dataCalc == 'calc_roll_mean') {xtss = zoo::rollmean(PerformanceAnalytics::Return.calculate(xts, method = 'log'), k = 4)}
+      
+      dts = as.data.table(xtss)
       dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
       
       return(dts)
       
+   })
+   
+   # observe({
+   #    x = dt_tickersAgg()$ticker
+   #    if (is.null(x))
+   #       x = character(0)
+   #    updateSelectInput(session, 'exp_select_ticker_boxes',
+   #                      label = NULL,
+   #                      choices = unique(x),
+   #                      selected = head(unique(x), 1)
+   #    )
+   # })
+   
+   ### Calculation Value Boxes
+   output$calc_max_value = renderPrint({
+      req(dt_tickersAgg())
+      # max(dt_tickersAgg()[input$exp_select_ticker_boxes]$value)
+      max(dt_tickersAgg()$value)
    })
    
    

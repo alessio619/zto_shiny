@@ -18,8 +18,7 @@ page_explorer =  fluidPage(
   fluidRow(
     ## Fetch data
     column(3,
-           wellPanel(style = 'height: 550px; background-color: rgba(108, 117, 125, 0.03);',
-             br(),
+           wellPanel(style = 'height: 565px; background-color: rgba(108, 117, 125, 0.03);',
              h5("Search companies", style = 'color: #75A5B7'),
                in_exp_select_ticker,
              br(),
@@ -30,14 +29,15 @@ page_explorer =  fluidPage(
              br(), br(),
              h5("Data aggregation", style = 'color: #75A5B7'),
              in_exp_dataAgg,
-             br(), 
+             h5("Calculation", style = 'color: #75A5B7'),
+             in_exp_dataCalc,             
                in_exp_button_download,
              br(),
            ) ### wellpanel
           ), ### column
     ## Plot data
     column(9,
-           card(style = 'height: 550px;',
+           card(style = 'height: 565px;',
              card_header(span('Ticker Prices', style = 'font-weight: bold')),
              card_body(
                highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '400px')
@@ -52,11 +52,44 @@ page_explorer =  fluidPage(
   ## Prices Table
   fluidRow(
     column(width = 12,
-     card(style = 'height: 500px;',
-          card_header(span('Retrieved companies information', style = 'font-weight: bold')),
+     card(style = 'max-height: 200px;',
+          card_header(in_exp_select_ticker_boxes),
           card_body(
-    ## Table
-    reactableOutput(outputId = 'exp_table_tickersSeries')
+            ## Table
+             layout_column_wrap(
+                # width = "250px",
+                !!!list(
+                   value_box(
+                      title = "Maximum",
+                      value = textOutput("calc_max_value"),
+                      showcase = bs_icon("bar-chart"),
+                      theme = "teal",
+                      # p("The 1st detail")
+                   ),
+                   value_box(
+                      title = "Minimum",
+                      value = textOutput("calc_min_value"),
+                      showcase = bs_icon("graph-up"),
+                      theme = "warning",
+                      # p("The 2nd detail"),
+                   ),
+                   value_box(
+                      title = "Mean",
+                      value = textOutput("calc_mean_value"),
+                      showcase = bs_icon("calculator"),
+                      theme = "blue",
+                      # p("The 4th detail"),
+                   ),
+                   value_box(
+                      title = "Last value",
+                      value = textOutput("calc_last_value"),
+                      showcase = bs_icon("coin"),
+                      theme = "gray",
+                      # p("The 4th detail"),
+                   )   
+                )
+             )
+            # reactableOutput(outputId = 'exp_table_tickersSeries')
           ) ### card body
      ) ### card
     ) ### column

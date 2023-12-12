@@ -31,6 +31,16 @@ in_exp_dataAgg =
       width = '100%'
    )
 
+in_exp_dataCalc =
+   radioButtons(
+      inputId = 'exp_dataCalc',
+      label = NULL,
+      choices = c('Price' = 'calc_price', 'Returns' = 'calc_ret', 'Roll mean Ret.' = 'calc_roll_mean'),
+      selected = 'calc_price',
+      inline = TRUE,
+      width = '100%'
+   )
+
 
 ### Fetch Tickers button
 in_exp_button_fetchTickers = 
@@ -40,6 +50,15 @@ in_exp_button_fetchTickers =
       class = 'btn-primary',
       icon = shiny::icon("chevron-down"),
       width = '100%'
+   )
+
+###  Select Value boxes
+in_exp_select_ticker_boxes =
+   selectInput(
+      inputId = 'exp_select_ticker_boxes',
+      label = NULL,
+      choices = NULL,
+      multiple = FALSE
    )
 
 in_exp_button_download = 
