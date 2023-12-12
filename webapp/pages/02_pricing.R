@@ -18,7 +18,7 @@ page_explorer =  fluidPage(
   fluidRow(
     ## Fetch data
     column(3,
-           wellPanel(style = 'height: 500px; background-color: rgba(108, 117, 125, 0.03);',
+           wellPanel(style = 'height: 550px; background-color: rgba(108, 117, 125, 0.03);',
              br(),
              h5("Search companies", style = 'color: #75A5B7'),
                in_exp_select_ticker,
@@ -26,18 +26,18 @@ page_explorer =  fluidPage(
              h5("Select date range", style = 'color: #75A5B7'),
                in_exp_dateRange,
              br(),
-             h5("Time granularity", style = 'color: #75A5B7'),
-               in_exp_dataType,
-             br(),
                in_exp_button_fetchTickers,
              br(), br(),
+             h5("Data aggregation", style = 'color: #75A5B7'),
+             in_exp_dataAgg,
+             br(), 
                in_exp_button_download,
-             br()
+             br(),
            ) ### wellpanel
           ), ### column
     ## Plot data
     column(9,
-           card(style = 'height: 500px;',
+           card(style = 'height: 550px;',
              card_header(span('Ticker Prices', style = 'font-weight: bold')),
              card_body(
                highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '400px')
@@ -46,6 +46,8 @@ page_explorer =  fluidPage(
     )
 
         ), ### row
+  
+  br(),
 
   ## Prices Table
   fluidRow(

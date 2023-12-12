@@ -1,7 +1,7 @@
 
 # Inputs ================================================================================
 
-## 01_explorer --------------------------------------------------------
+## 01_pricing --------------------------------------------------------
 
 ### Tickers Search from list
 in_exp_select_ticker =
@@ -21,15 +21,14 @@ in_exp_dateRange =
       width = '100%'
    )
 
-## Tickers Type of Data granularity
-in_exp_dataType =
-   shinyWidgets::radioGroupButtons(
-      inputId = 'exp_dataType',
+## Tickers Type of Aggregation
+in_exp_dataAgg =
+   radioButtons(
+      inputId = 'exp_dataAgg',
       label = NULL,
-      choices = c('Daily  ' = 'daily', 'Weekly' = 'weekly', 'Monthly' = 'monthly'),
-      selected = 'weekly',
-      width = '100%',
-      justified = TRUE
+      choices = c('Price' = 'ls_week', 'YTD  ' = 'ls_ytd', '52 Weeks' = 'ls_52', 'Quarter' = 'ls_quarter', 'Month' = 'ls_month'),
+      selected = 'ls_week',
+      width = '100%'
    )
 
 ### Fetch Tickers button

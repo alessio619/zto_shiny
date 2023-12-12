@@ -14,23 +14,39 @@ server_app = function(input, output) {
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
-      
       req(ticker_list())
       
       dt_sym_wk = fetch_tickers(TICKERS = ticker_list(),
-                                INIT_DATE = input$exp_dateRange[1], END_DATE = input$exp_dateRange[2],
-                                TYPE = input$exp_dataType)
+                                INIT_DATE = input$exp_dateRange[1],
+                                END_DATE = input$exp_dateRange[2])
       
       return(dt_sym_wk)
+      
+   })
+   
+   ### Calculations on Tickers:
+   
+   dt_tickersAgg = reactive({
+      
+      #req(dt_fetchedTickers())
+      
+      dtw = copy(dt_fetchedTickers())
+      
+      xtw = calc_agg(input$exp_dataAgg, DT = dtw, cum = FALSE)
+      
+      xts = as.data.table(xtw)
+      dts = melt(xts, id.vars = 'index', variable.name = 'ticker', value.name = 'price') 
+      
+      return(dts)
       
    })
    
    ### Plot Tickers Data
    output$exp_plot_tickersSeries = renderHighchart({
      
-      req(dt_fetchedTickers())
+      req(dt_tickersAgg())
      
-      hchart(dt_fetchedTickers(),
+      hchart(dt_tickersAgg(),
              "line",
              hcaes(x = index, y = price, group = ticker)) |> 
          hc_xAxis(title = '', lineWidth = 0) |> 
