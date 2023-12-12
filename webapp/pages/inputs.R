@@ -26,10 +26,11 @@ in_exp_dataAgg =
    radioButtons(
       inputId = 'exp_dataAgg',
       label = NULL,
-      choices = c('Price' = 'ls_week', 'YTD  ' = 'ls_ytd', '52 Weeks' = 'ls_52', 'Quarter' = 'ls_quarter', 'Month' = 'ls_month'),
-      selected = 'ls_week',
+      choices = c('Price' = 'price', 'Week' = 'last_week', 'Month' = 'last_month', 'Quarter' = 'last_quarter', 'YTD  ' = 'ytd', '52 Weeks' = 'last_year'),
+      selected = 'price',
       width = '100%'
    )
+
 
 ### Fetch Tickers button
 in_exp_button_fetchTickers = 

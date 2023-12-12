@@ -28,18 +28,21 @@ server_app = function(input, output) {
    
    dt_tickersAgg = reactive({
       
-      #req(dt_fetchedTickers())
+      req(dt_fetchedTickers())
       
       dtw = copy(dt_fetchedTickers())
       
-      xtw = calc_agg(input$exp_dataAgg, DT = dtw, cum = FALSE)
+      xtw = calc_agg(DT = dtw)
       
-      xts = as.data.table(xtw)
-      dts = melt(xts, id.vars = 'index', variable.name = 'ticker', value.name = 'price') 
+      xts = xtw[input$exp_dataAgg][[1]]
+      
+      dts = as.data.table(xts)
+      dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
       
       return(dts)
       
    })
+   
    
    ### Plot Tickers Data
    output$exp_plot_tickersSeries = renderHighchart({
@@ -48,7 +51,7 @@ server_app = function(input, output) {
      
       hchart(dt_tickersAgg(),
              "line",
-             hcaes(x = index, y = price, group = ticker)) |> 
+             hcaes(x = index, y = value, group = ticker)) |> 
          hc_xAxis(title = '', lineWidth = 0) |> 
          hc_yAxis(title = '')  |> 
          hc_legend(align = "left", verticalAlign = "top", layout = "horizontal")
@@ -59,9 +62,9 @@ server_app = function(input, output) {
    ### Table Retrieved companies data
    output$exp_table_tickersSeries = renderReactable({
       
-      req(dt_fetchedTickers())
+      req(dt_tickersAgg())
       
-      reactable(dt_fetchedTickers(),
+      reactable(dt_tickersAgg(),
                 highlight = TRUE,
                 outlined = FALSE,
                 compact = TRUE,

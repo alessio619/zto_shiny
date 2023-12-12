@@ -13,7 +13,7 @@ page_explorer =  fluidPage(
          ) ### card
      ) ### column
   ), ### row
-
+  
   ## Prices Select & Plot
   fluidRow(
     ## Fetch data
