@@ -5,6 +5,11 @@ page_explorer =  fluidPage(
 
   ## Header
    
+   fluidRow(
+      textOutput('texto')
+   ),
+   
+   
   fluidRow( 
      column(width = 3,
          card(style = 'max-height: 200px; min-height: 200px;',

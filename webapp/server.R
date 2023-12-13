@@ -8,7 +8,9 @@ server_app = function(input, output, session) {
    ### Find TICKERS from NAMES
    ticker_list = eventReactive(input$exp_button_fetchTickers, {
       
-      return(engm_equities_list[name_company %in% input$exp_select_ticker]$code_ticker)
+      ita_list = engm_equities_list[name_company %in% input$exp_select_ticker]$code_ticker
+      full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
+      return(full_list)
       
    })
    
@@ -127,10 +129,16 @@ server_app = function(input, output, session) {
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
-         write.csv(dt_fetchedTickers(), file)
+         write.csv(dt_tickersAgg(), file)
       }
    )   
    
+   
+   output$texto = renderPrint({
+      
+      c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
+      
+   })
    
    
    ## END --------------
