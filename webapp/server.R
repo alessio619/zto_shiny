@@ -1,7 +1,7 @@
 
 # Inputs ================================================================================
 
-server_app = function(input, output) {
+server_app = function(input, output, session) {
 
    ## 01_explorer --------------------------------------------------------
    
@@ -49,27 +49,43 @@ server_app = function(input, output) {
       dts = as.data.table(xtss)
       dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
       
+      dts[, value := round(value, digits = 2)]
+      
       return(dts)
       
    })
    
-   # observe({
-   #    x = dt_tickersAgg()$ticker
-   #    if (is.null(x))
-   #       x = character(0)
-   #    updateSelectInput(session, 'exp_select_ticker_boxes',
-   #                      label = NULL,
-   #                      choices = unique(x),
-   #                      selected = head(unique(x), 1)
-   #    )
-   # })
+   observe({
+      x = dt_tickersAgg()$ticker
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_ticker_boxes',
+                        label = NULL,
+                        choices = unique(x),
+                        selected = head(unique(x), 1)
+      )
+   })
    
    ### Calculation Value Boxes
-   output$calc_max_value = renderPrint({
+   output$calc_max_value = renderText({
       req(dt_tickersAgg())
-      # max(dt_tickersAgg()[input$exp_select_ticker_boxes]$value)
-      max(dt_tickersAgg()$value)
+      round(max(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
    })
+   
+   output$calc_min_value = renderText({
+      req(dt_tickersAgg())
+      round(min(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+   })
+   
+   output$calc_mean_value = renderText({
+      req(dt_tickersAgg())
+      round(mean(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+   })   
+
+   output$calc_median_value = renderText({
+      req(dt_tickersAgg())
+      round(median(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+   })   
    
    
    ### Plot Tickers Data

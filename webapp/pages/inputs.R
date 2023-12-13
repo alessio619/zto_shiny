@@ -3,9 +3,27 @@
 
 ## 01_pricing --------------------------------------------------------
 
+### Upload Name-Ticker List
+in_exp_upload_ticker_list =
+   fileInput(
+      inputId = "upload",
+      label = span('Upload companies list', style = 'color: ; font-weight: bold;'), 
+      multiple = FALSE,
+      accept = c(".csv", ".tsv"),
+      width = '100%'
+   )
+
+### Tickers Search from list
+in_exp_insert_ticker =
+   textInput(
+      inputId = 'exp_insert_ticker',
+      label = NULL,
+      placeholder = 'Insert $TICKER'
+   )
+
 ### Tickers Search from list
 in_exp_select_ticker =
-   selectInput(
+   selectizeInput(
       inputId = 'exp_select_ticker',
       label = NULL,
       choices = engm_equities_list$name_company,
@@ -23,22 +41,25 @@ in_exp_dateRange =
 
 ## Tickers Type of Aggregation
 in_exp_dataAgg =
-   radioButtons(
-      inputId = 'exp_dataAgg',
+   radioGroupButtons(
+      inputId = "exp_dataAgg",
       label = NULL,
       choices = c('Price' = 'price', 'Week' = 'last_week', 'Month' = 'last_month', 'Quarter' = 'last_quarter', 'YTD  ' = 'ytd', '52 Weeks' = 'last_year'),
       selected = 'price',
-      width = '100%'
+      justified = TRUE,
+      width = '100%',
+      size = 'sm'
    )
 
 in_exp_dataCalc =
-   radioButtons(
-      inputId = 'exp_dataCalc',
+   radioGroupButtons(
+      inputId = "exp_dataCalc",
       label = NULL,
-      choices = c('Price' = 'calc_price', 'Returns' = 'calc_ret', 'Roll mean Ret.' = 'calc_roll_mean'),
+      choices = c('Price' = 'calc_price', 'Returns' = 'calc_ret', 'Cum. Return' = 'calc_cum_ret'),
       selected = 'calc_price',
-      inline = TRUE,
-      width = '100%'
+      justified = TRUE,
+      width = '100%',
+      size = 'sm'
    )
 
 
@@ -54,7 +75,7 @@ in_exp_button_fetchTickers =
 
 ###  Select Value boxes
 in_exp_select_ticker_boxes =
-   selectInput(
+   selectizeInput(
       inputId = 'exp_select_ticker_boxes',
       label = NULL,
       choices = NULL,

@@ -5,7 +5,7 @@ zerotoonec_theme =
    bs_theme(
       bootswatch = "litera",
       primary = '#75A5B7',
-      secondary = '#8DC2C9',
+      secondary = '#6c757d',
       info = '#4C6279',
       danger = '#F29191',
       warning = '#f37736',
