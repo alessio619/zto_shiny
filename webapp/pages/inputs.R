@@ -6,11 +6,23 @@
 ### Upload Name-Ticker List
 in_exp_upload_ticker_list =
    fileInput(
-      inputId = "upload",
+      inputId = "exp_upload_tickerlist",
       label = span('Upload companies list', style = 'color: ; font-weight: bold;'), 
       multiple = FALSE,
       accept = c(".csv", ".tsv"),
       width = '100%'
+   )
+
+### Select list origin
+in_exp_select_list =
+   radioGroupButtons(
+      inputId = "exp_select_list",
+      label = span('List origin', style = 'color: #6c757d; font-weight: bold;'), 
+      choices = c('Base' = 'list_base', 'Upload' = 'list_upload', 'Both' = 'list_both'),
+      selected = 'list_base',
+      justified = TRUE,
+      width = '100%',
+      size = 'sm'
    )
 
 ### Tickers Search from list
@@ -23,10 +35,11 @@ in_exp_insert_ticker =
 
 ### Tickers Search from list
 in_exp_select_ticker =
-   selectizeInput(
+   selectInput(
       inputId = 'exp_select_ticker',
       label = NULL,
-      choices = engm_equities_list$name_company,
+      # choices = engm_equities_list$name_company,
+      choices = NULL, 
       multiple = TRUE
    )
 
@@ -75,7 +88,7 @@ in_exp_button_fetchTickers =
 
 ###  Select Value boxes
 in_exp_select_ticker_boxes =
-   selectizeInput(
+   selectInput(
       inputId = 'exp_select_ticker_boxes',
       label = NULL,
       choices = NULL,

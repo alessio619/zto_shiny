@@ -12,14 +12,14 @@ page_explorer =  fluidPage(
    
   fluidRow( 
      column(width = 3,
-         card(style = 'max-height: 200px; min-height: 200px;',
+         card(style = 'max-height: 225px; min-height: 200px;',
             h2('Explorer'),
-            span('Pricing data and metrics for Euronext Growth Milano'),
+            in_exp_select_list,
             in_exp_upload_ticker_list
          ) ### card
      ), ### column
      column(width = 9,
-         card(style = 'max-height: 200px; min-height: 200px;',
+         card(style = 'max-height: 225px; min-height: 200px;',
               card_header(in_exp_select_ticker_boxes),
               card_body(
                  ## Table

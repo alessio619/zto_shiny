@@ -5,13 +5,61 @@ server_app = function(input, output, session) {
 
    ## 01_explorer --------------------------------------------------------
    
+   ### Ticker list
+   tickers_full_list = eventReactive(input$exp_select_list, {
+      engm_equities_lista = NULL  # Initialize outside the conditions
+      
+      if (input$exp_select_list == 'list_base') {
+         engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
+      }
+      
+      if (input$exp_select_list == 'list_upload') {
+         if (!is.null(input$exp_upload_tickerlist$datapath)) {
+            engm_equities_lista = fread(input$exp_upload_tickerlist$datapath)
+         } else {
+            showNotification("Attention: No data uploaded", type = "error")
+         }
+      }
+      
+      if (input$exp_select_list == 'list_both') {
+         if (!is.null(input$exp_upload_tickerlist$datapath)) {
+            engm_equities_list_1 = fread(input$exp_upload_tickerlist$datapath)
+            engm_equities_list_2 = setDT(read.csv2(file.path('data', 'Euronext_Equities_2023-12-06.csv')))
+            engm_equities_lista = rbind(engm_equities_list_1, engm_equities_list_2, fill = TRUE)
+         } else {
+            engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
+            showNotification("Attention: No data uploaded", type = "error")
+         }
+      }
+      
+      return(engm_equities_lista)
+   })
+   
+   
+   ### Update selector
+   observe({
+
+      req(tickers_full_list())
+
+      x = tickers_full_list()$name_company
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_ticker',
+                        label = NULL,
+                        choices = unique(x)
+      )
+   })
+   
+   
+   
    ### Find TICKERS from NAMES
    ticker_list = eventReactive(input$exp_button_fetchTickers, {
-      
-      ita_list = engm_equities_list[name_company %in% input$exp_select_ticker]$code_ticker
+
+      req(tickers_full_list())
+      ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
       full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
       return(full_list)
-      
+
    })
    
    ### Fetch and Retrieve Tickers Data
@@ -27,7 +75,6 @@ server_app = function(input, output, session) {
    })
    
    ### Calculations on Tickers:
-   
    dt_tickersAgg = reactive({
       
       req(dt_fetchedTickers())
@@ -39,19 +86,28 @@ server_app = function(input, output, session) {
       xts = xtw[input$exp_dataAgg][[1]]
       
       ### roll mean
-      if(input$exp_dataCalc == 'calc_price') {xtss = copy(xts)}
-      if(input$exp_dataCalc == 'calc_ret') {xtss = PerformanceAnalytics::Return.calculate(xts, method = 'log')}
-      if(input$exp_dataCalc == 'calc_cumret') {
-         xtw_ret = PerformanceAnalytics::Return.calculate(xts, method = 'log')
-         xtw_ret = xtw_ret[-2]
-         xtss = apply(xtw_ret, 2, cumsum)
+      if(input$exp_dataCalc == 'calc_price') {
+         xtss = copy(xts)
+         dts = as.data.table(xtss)
+         dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
+         dts[, value := round(value, digits = 2)]
          }
-      if(input$exp_dataCalc == 'calc_roll_mean') {xtss = zoo::rollmean(PerformanceAnalytics::Return.calculate(xts, method = 'log'), k = 4)}
-      
-      dts = as.data.table(xtss)
-      dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
-      
-      dts[, value := round(value, digits = 2)]
+      if(input$exp_dataCalc == 'calc_ret') {
+         xtss = PerformanceAnalytics::Return.calculate(xts, method = 'log')
+         dts = as.data.table(xtss)
+         dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
+         dts[, value := round(value, digits = 2)]
+         }
+      if(input$exp_dataCalc == 'calc_cum_ret') {
+         xtw_ret = PerformanceAnalytics::Return.calculate(xts, method = 'log')
+         xtw_ret = na.omit(xtw_ret)
+         xtss = apply(xtw_ret, 2, cumsum)
+         indexx = zoo::index(xtss)
+         dts = as.data.table(xtss)
+         dts$index = indexx
+         dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
+         dts[, value := round(value, digits = 2)]
+         } 
       
       return(dts)
       
@@ -71,22 +127,22 @@ server_app = function(input, output, session) {
    ### Calculation Value Boxes
    output$calc_max_value = renderText({
       req(dt_tickersAgg())
-      round(max(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+      round(max(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
    })
    
    output$calc_min_value = renderText({
       req(dt_tickersAgg())
-      round(min(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+      round(min(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
    })
    
    output$calc_mean_value = renderText({
       req(dt_tickersAgg())
-      round(mean(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+      round(mean(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
    })   
 
    output$calc_median_value = renderText({
       req(dt_tickersAgg())
-      round(median(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value), digits = 2)
+      round(median(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
    })   
    
    
@@ -104,6 +160,17 @@ server_app = function(input, output, session) {
     
   })
    
+   
+   ### Calculations Tickers Data.table:
+   dt_tickersAgg = reactive({
+      
+      req(dt_fetchedTickers())
+      
+      dtw = copy(dt_fetchedTickers())
+      
+      xtw = calc_agg(DT = dtw)
+      
+      xts = xtw[input$exp_dataAgg][[1]]
    
    ### Table Retrieved companies data
    output$exp_table_tickersSeries = renderReactable({
@@ -136,7 +203,7 @@ server_app = function(input, output, session) {
    
    output$texto = renderPrint({
       
-      c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
+      # c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
       
    })
    
