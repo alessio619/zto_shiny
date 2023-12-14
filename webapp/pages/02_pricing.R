@@ -5,10 +5,9 @@ page_explorer =  fluidPage(
 
   ## Header
    
-   fluidRow(
-      textOutput('texto')
-   ),
-   
+   # fluidRow(
+   #    textOutput('texto')
+   # ),
    
   fluidRow( 
      column(width = 3,
@@ -74,7 +73,7 @@ page_explorer =  fluidPage(
   fluidRow(
     ## Fetch data
     column(3,
-           wellPanel(style = 'height: 565px; background-color: rgba(108, 117, 125, 0.03);',
+           wellPanel(style = 'min-height: 565px; background-color: rgba(108, 117, 125, 0.03);',
              h5("Search companies", style = 'color: #75A5B7'),
                in_exp_select_ticker,
              h5("Type symbols", style = 'color: #75A5B7'),
@@ -95,7 +94,7 @@ page_explorer =  fluidPage(
           ), ### column
     ## Plot data
     column(9,
-           card(style = 'height: 565px;',
+           card(style = 'min-height: 565px;',
              card_header(span('Ticker Prices', style = 'font-weight: bold')),
              card_body(
                highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '400px')
@@ -110,8 +109,8 @@ page_explorer =  fluidPage(
   ## Prices Table
   fluidRow(
     column(width = 12,
-     card(style = 'max-height: 200px;',
-          card_header(in_exp_select_ticker_boxes),
+     card(style = 'height: 525px;',
+          card_header(span('Summary Table', style = 'color: ; font-weight: bold;')),
           card_body(
             ## Table
             reactableOutput(outputId = 'exp_table_tickersSeries')

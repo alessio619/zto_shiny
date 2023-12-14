@@ -162,22 +162,46 @@ server_app = function(input, output, session) {
    
    
    ### Calculations Tickers Data.table:
-   dt_tickersAgg = reactive({
+   dt_tickersTable = reactive({
       
       req(dt_fetchedTickers())
       
       dtw = copy(dt_fetchedTickers())
-      
       xtw = calc_agg(DT = dtw)
+      xtw = xtw[input$exp_dataAgg][[1]]
       
-      xts = xtw[input$exp_dataAgg][[1]]
+      ### Returns
+      xtw_ret = PerformanceAnalytics::Return.calculate(xtw, method = 'log')
+      xtw_ret[is.na(xtw_ret)] = 0
+      xtw_ret_cum = apply(xtw_ret, 2, cumsum)
+      indexx = zoo::index(xtw_ret)
+      
+      dts_p = as.data.table(xtw)
+      dts_r = as.data.table(xtw_ret)
+      dts_rc = as.data.table(xtw_ret_cum)
+      dts_rc$index = indexx
+      
+      dts_p = melt(dts_p, id.vars = 'index', variable.name = 'ticker', value.name = 'price')
+      dts_r = melt(dts_r, id.vars = 'index', variable.name = 'ticker', value.name = 'return')
+      dts_rc = melt(dts_rc, id.vars = 'index', variable.name = 'ticker', value.name = 'return_cum')
+      
+      dts = Reduce(function(x, y) merge(x, y, by = c("index", 'ticker')), list(dts_p, dts_r, dts_rc))
+      setDT(dts)   
+      dts[, (c('price', 'return', 'return_cum')) := lapply(.SD, function(x) round(x, 2)), .SDcols = c('price', 'return', 'return_cum')]
+      
+      return(dts)
+      
+   })
    
    ### Table Retrieved companies data
    output$exp_table_tickersSeries = renderReactable({
       
-      req(dt_tickersAgg())
+      req(dt_tickersTable())
       
-      reactable(dt_tickersAgg(),
+      DTW = copy(dt_tickersTable())
+      setnames(DTW, old = names(DTW), new = toupper(names(DTW)))
+      
+      reactable(DTW,
                 highlight = TRUE,
                 outlined = FALSE,
                 compact = TRUE,
@@ -196,18 +220,17 @@ server_app = function(input, output, session) {
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
-         write.csv(dt_tickersAgg(), file)
+         write.csv(dt_tickersTable(), file)
       }
    )   
    
    
-   output$texto = renderPrint({
-      
-      # c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
-      
-   })
-   
-   
    ## END --------------
+   
+   # output$texto = renderPrint({
+   #    
+   #    c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
+   #    
+   # })
   
 }
