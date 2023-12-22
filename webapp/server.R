@@ -3,7 +3,7 @@
 
 server_app = function(input, output, session) {
 
-   ## 01_explorer --------------------------------------------------------
+   ## 01_price --------------------------------------------------------
    
    ### Ticker list
    tickers_full_list = eventReactive(input$exp_select_list, {
@@ -224,6 +224,55 @@ server_app = function(input, output, session) {
       }
    )   
    
+   
+   # ## 02_financials --------------------------------------------------------
+   # 
+   # ### Ticker list
+   # tickers_full_list_fin = eventReactive(input$fin_select_list, {
+   #    engm_equities_lista = NULL  # Initialize outside the conditions
+   #    
+   #       engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
+   #    
+   #    return(engm_equities_lista)
+   # })
+   # 
+   # 
+   # ### Update selector
+   # observe({
+   #    
+   #    req(tickers_full_list_fin())
+   #    
+   #    x = tickers_full_list_fin()$name_company
+   #    if (is.null(x))
+   #       x = character(0)
+   #    updateSelectInput(session, 'fin_select_ticker',
+   #                      label = NULL,
+   #                      choices = unique(x)
+   #    )
+   # })
+   # 
+   # 
+   # 
+   # ### Find TICKERS from NAMES
+   # ticker_list_fin = eventReactive(input$fin_button_fetchTickers, {
+   #    
+   #    req(tickers_full_list_fin())
+   #    ita_list = tickers_full_list_fin()[name_company %in% input$exp_select_ticker]$code_ticker
+   #    full_list = c(ita_list, strsplit(input$fin_insert_ticker, ";")[[1]])
+   #    return(full_list)
+   #    
+   # })
+   # 
+   # ### Fetch and Retrieve Tickers Data
+   # dt_fetchedTickers_fin = eventReactive(input$fin_button_fetchTickers, {
+   #    req(ticker_list_fin())
+   #    
+   #    dt_sym_wk = fetch_tickers(TICKERS = ticker_list_fin())
+   #    
+   #    return(dt_sym_wk)
+   #    
+   # })
+   # 
    
    ## END --------------
    

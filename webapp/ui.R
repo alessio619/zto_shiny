@@ -26,24 +26,24 @@ navbarPage(
    theme = zerotoonec_theme,
    
    tags$style(HTML(
-      '.nav.navbar-nav {margin: 20px; height: 45px; padding-right: 15px; font-size: 15px;}'
+      '.nav.navbar-nav {margin: 1.5%; height: 3vh; padding-bottom: 2.5%; padding-left: 2.5%; font-size: 1.125vw;}'
    )),
    
    tags$style(HTML(
-      '.navbar-brand {padding: 25px; font-weight: bold; font-size: 24px;}'
+      '.navbar-brand {padding: 25%; font-weight: bold; font-size: 1.5vw;}'
    )),
    
    
    ## Pages ------------------------------------
 
    tabPanel(
-      "Explorer",
-      page_explorer
+      "Price",
+      page_price
    ),
    
    tabPanel(
-      "Other",
-      page_companies
+      "Financials",
+      page_financials
    )
    
    ## END 
