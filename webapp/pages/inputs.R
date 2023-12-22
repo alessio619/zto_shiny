@@ -30,7 +30,7 @@ in_exp_select_list =
 in_exp_select_ticker =
    selectInput(
       inputId = 'exp_select_ticker',
-      label = NULL,
+      label = span('From list symbols', style = 'color: #75A5B7; font-weight: bold;'),
       # choices = engm_equities_list$name_company,
       choices = NULL, 
       multiple = TRUE

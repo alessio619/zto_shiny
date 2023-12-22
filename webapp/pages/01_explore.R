@@ -22,7 +22,7 @@ fluidRow( # big fluid row start
          ## Second accordion --------------------------------------------------
          accordion(
             accordion_panel(
-               title = h5("Search companies", style = 'font-weight: bold; color: #75A5B7'),
+               title = h5("Search companies", style = 'font-weight: bold; color: #4C6279'),
                in_exp_select_ticker,
                in_exp_insert_ticker,             
                in_exp_dateRange,
@@ -84,13 +84,10 @@ fluidRow( # big fluid row start
                  # reactableOutput(outputId = 'exp_table_tickersSeries')
               ) ### card body
          ), ### card ### card
-         
          navset_card_pill(height = '56vh',
                          title = (span('Ticker Prices', style = 'font-weight: bold')),
-                         # style = 'border-color: rgb(221, 221, 221);',
             nav_panel(
               title = "Price",
-         # card(style = 'min-height: 56vh; border-color: rgb(221, 221, 221);',
               layout_sidebar(
                  bg = '#f9f9f9',
                  border = FALSE, 

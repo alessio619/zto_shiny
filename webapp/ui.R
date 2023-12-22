@@ -33,6 +33,18 @@ navbarPage(
       '.navbar-brand {padding: 25%; font-weight: bold; font-size: 1.5vw;}'
    )),
    
+   tags$style(HTML(
+      '.bslib-card {border-color: rgb(221, 221, 221);}'
+   )),   
+   
+   tags$style(HTML(
+      '.bslib-card .bslib-navs-card-title {border-bottom-color: rgb(221, 221, 221);}'
+   )),   
+   
+   tags$style(HTML(
+      '.card-header {border-bottom-color: rgb(221, 221, 221);}'
+   )),   
+   
    
    ## Pages ------------------------------------
 
