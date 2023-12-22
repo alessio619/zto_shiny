@@ -50,7 +50,6 @@ fluidRow( # big fluid row start
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#6EBDAB"),
                           showcase_layout = "top right",
                           class = "border"
-                          # p("The 1st detail")
                        ),
                        value_box(
                           title = "Minimum",
@@ -59,7 +58,6 @@ fluidRow( # big fluid row start
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#F29191"),
                           showcase_layout = "top right",
                           class = "border"
-                          # p("The 2nd detail"),
                        ),
                        value_box(
                           title = "Mean",
@@ -68,7 +66,6 @@ fluidRow( # big fluid row start
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#75A5B7"),
                           showcase_layout = "top right",
                           class = "border"
-                          # p("The 4th detail"),
                        ),
                        value_box(
                           title = "Median",
@@ -77,15 +74,13 @@ fluidRow( # big fluid row start
                           showcase_layout = "top right",
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#4C6279"),
                           class = "border"
-                          # p("The 4th detail"),
                        )
                     )
                  )
-                 # reactableOutput(outputId = 'exp_table_tickersSeries')
               ) ### card body
          ), ### card ### card
          navset_card_pill(height = '56vh',
-                         title = (span('Ticker Prices', style = 'font-weight: bold')),
+                         title = (span('Plots', style = 'color: #4C6279; font-weight: bold;')),
             nav_panel(
               title = "Price",
               layout_sidebar(
@@ -111,31 +106,32 @@ fluidRow( # big fluid row start
                                  'placeholder1',
                                  'placeholder2'), ### sidebar
               'placeholder'
-            # highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '40vh')
          ) ### layout sidebar
          
       ) ### navpillcard
       
-      ) ### card
+      ), ### card
+      
+      
+      ## Tables -----------------------------------------
+      
+      navset_card_pill(
+            height = '53vh',
+            title = (span('Tables', style = 'color: #4C6279; font-weight: bold;')),
+            
+         nav_panel(
+            title = "Price",
+            reactableOutput(outputId = 'exp_table_tickersSeries')
+            ),
+         nav_panel(
+            title = "Financials",
+            reactableOutput(outputId = 'exp_table_tickersFinancials')
+            )         
+          ) ### card body
          
      ) ### column     
     
-    ), ### BIG FLUIDROW END
-
-  br(),
-
-  ## Prices Table
-  fluidRow(
-    column(width = 12,
-     card(style = 'height: 52vh; border-color: rgb(221, 221, 221);',
-          card_header(span('Summary Table', style = 'color: ; font-weight: bold;')),
-          card_body(
-            ## Table
-            reactableOutput(outputId = 'exp_table_tickersSeries')
-          ) ### card body
-     ) ### card
-    ) ### column
-  ) ### row
+    ) ### BIG FLUIDROW END
 
   ## END
 
