@@ -3,6 +3,8 @@
 
 page_explore =  fluidPage(
    
+   # fluidRow(textOutput('texto')),
+   
 fluidRow( # big fluid row start
    
      column(width = 3,
@@ -31,7 +33,7 @@ fluidRow( # big fluid row start
          br(),
          card(style = 'border-color: rgb(221, 221, 221);',
             in_exp_button_fetchTickers,
-            in_exp_button_selectTickers,
+            in_exp_button_fetchFinancials,
             in_exp_button_download
          ) ### card
      ),         
@@ -97,17 +99,17 @@ fluidRow( # big fluid row start
          
          nav_panel(
             title = "Financials",         
-            layout_sidebar(
-               bg = '#f9f9f9',
-               border = FALSE, 
-               height = '56vh',
-               sidebar = sidebar(title = "Financial controls",
-                                 position = "right", open = 'closed',
-                                 'placeholder1',
-                                 'placeholder2'), ### sidebar
-              'placeholder'
-         ) ### layout sidebar
-         
+         #    layout_sidebar(
+         #       bg = '#f9f9f9',
+         #       border = FALSE, 
+         #       height = '56vh',
+         #       sidebar = sidebar(title = "Financial controls",
+         #                         position = "right", open = 'closed',
+         #                         in_exp_finTime,
+         #                         in_exp_finType), ### sidebar
+         #      
+         # ) ### layout sidebar
+         'placeholder'
       ) ### navpillcard
       
       ), ### card
@@ -125,8 +127,18 @@ fluidRow( # big fluid row start
             ),
          nav_panel(
             title = "Financials",
-            reactableOutput(outputId = 'exp_table_tickersFinancials')
-            )         
+            layout_sidebar(
+               bg = '#f9f9f9',
+               border = FALSE, 
+               height = '56vh',
+               sidebar = sidebar(title = "Financial controls",
+                                 position = "right", open = 'closed',
+                                 in_exp_select_tickerTable,
+                                 in_exp_finTime,
+                                 in_exp_finType), ### sidebar
+               reactableOutput(outputId = 'exp_table_tickersFinancials')
+              ) ### layout sidebar
+            ) ### nav panel         
           ) ### card body
          
      ) ### column     

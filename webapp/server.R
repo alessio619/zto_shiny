@@ -3,7 +3,7 @@
 
 server_app = function(input, output, session) {
 
-   ## 01_price --------------------------------------------------------
+   ## 01_explorer --------------------------------------------------------
    
    ### Ticker list
    tickers_full_list = eventReactive(input$exp_select_list, {
@@ -51,9 +51,27 @@ server_app = function(input, output, session) {
    })
    
    
+   ### Update selector
+   observe({
+      
+      req(tickers_full_list())
+      
+      ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
+      full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
+      
+      x = full_list
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_tickerTable',
+                        label = NULL,
+                        choices = unique(x)
+      )
+   })   
+   
+   
    
    ### Find TICKERS from NAMES
-   ticker_list = eventReactive(input$exp_button_fetchTickers, {
+   ticker_list = eventReactive(input$exp_button_fetchTickers | input$exp_button_fetchFinancials, {
 
       req(tickers_full_list())
       ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
@@ -193,7 +211,7 @@ server_app = function(input, output, session) {
       
    })
    
-   ### Table Retrieved companies data
+   ### Table Retrieved companies historical data
    output$exp_table_tickersSeries = renderReactable({
       
       req(dt_tickersTable())
@@ -225,61 +243,72 @@ server_app = function(input, output, session) {
    )   
    
    
+   ### Fetch and Retrieve Tickers Data
+   dt_fetchedFinancials = eventReactive(input$exp_button_fetchFinancials, {
+      
+      req(ticker_list())
+      
+      print('INIT')
+      
+      list_ticker_a = fc$fetch_statements_annual(ticker_list()[1])
+      dtw_bs_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'balance')
+      dtw_in_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'income')
+      dtw_cs_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'cash')
+      
+      list_ticker_q = fc$fetch_statements_quarterly(ticker_list()[1])
+      dtw_in_q = fc$get_financial_statements_quarterly(list_ticker_q, STMT = 'income')
+      dtw_cs_q = fc$get_financial_statements_quarterly(list_ticker_q, STMT = 'cash')
+      
+      dt_sym_wk = list(dtw_bs_a, dtw_in_a, dtw_cs_a, dtw_in_q, dtw_cs_q)
+      return(dt_sym_wk)
+      print('END')
+      
+   })
+   
+   
+   ### Table Retrieved companies data
+   output$exp_table_tickersFinancials = renderReactable({
+      
+      req(dt_fetchedFinancials())
+      
+      print('DETECTED')
+      
+      DTS = copy(dt_tickersTable())
+      # setnames(DTW, old = names(DTW), new = toupper(names(DTW)))
+      
+      if(input$exp_finTime == 'table_yearly') {
+         
+         if(input$exp_finType == 'table_type_bs') {DTW = copy(DTS[1])}
+         if(input$exp_finType == 'table_type_in') {DTW = copy(dtw_in_a)}
+         if(input$exp_finType == 'table_type_cs') {DTW = copy(dtw_cs_a)}
+         
+      } else if(input$exp_finTime == 'table_quarterly') {
+         
+         if(input$exp_finType == 'table_type_in') {DTW = copy(dtw_in_q)}
+         if(input$exp_finType == 'table_type_cs') {DTW = copy(dtw_cs_q)}
+         
+      }
+      
+      reactable(DTW,
+                highlight = TRUE,
+                outlined = FALSE,
+                compact = TRUE,
+                wrap = FALSE,
+                defaultPageSize = 12)
+      
+   })
+   
+   
    # ## 02_financials --------------------------------------------------------
-   # 
-   # ### Ticker list
-   # tickers_full_list_fin = eventReactive(input$fin_select_list, {
-   #    engm_equities_lista = NULL  # Initialize outside the conditions
-   #    
-   #       engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
-   #    
-   #    return(engm_equities_lista)
-   # })
-   # 
-   # 
-   # ### Update selector
-   # observe({
-   #    
-   #    req(tickers_full_list_fin())
-   #    
-   #    x = tickers_full_list_fin()$name_company
-   #    if (is.null(x))
-   #       x = character(0)
-   #    updateSelectInput(session, 'fin_select_ticker',
-   #                      label = NULL,
-   #                      choices = unique(x)
-   #    )
-   # })
-   # 
-   # 
-   # 
-   # ### Find TICKERS from NAMES
-   # ticker_list_fin = eventReactive(input$fin_button_fetchTickers, {
-   #    
-   #    req(tickers_full_list_fin())
-   #    ita_list = tickers_full_list_fin()[name_company %in% input$exp_select_ticker]$code_ticker
-   #    full_list = c(ita_list, strsplit(input$fin_insert_ticker, ";")[[1]])
-   #    return(full_list)
-   #    
-   # })
-   # 
-   # ### Fetch and Retrieve Tickers Data
-   # dt_fetchedTickers_fin = eventReactive(input$fin_button_fetchTickers, {
-   #    req(ticker_list_fin())
-   #    
-   #    dt_sym_wk = fetch_tickers(TICKERS = ticker_list_fin())
-   #    
-   #    return(dt_sym_wk)
-   #    
-   # })
-   # 
+
+   
    
    ## END --------------
    
-   # output$texto = renderPrint({
-   #    
-   #    c(input$exp_select_ticker, strsplit(input$exp_insert_ticker, ";")[[1]])
-   #    
-   # })
+   output$texto = renderPrint({
+
+      dt_fetchedFinancials()
+      
+   })
   
 }

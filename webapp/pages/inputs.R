@@ -3,15 +3,8 @@
 
 ## 01_explore --------------------------------------------------------
 
-### Upload Name-Ticker List
-in_exp_upload_ticker_list =
-   fileInput(
-      inputId = "exp_upload_tickerlist",
-      label = span('Upload companies list', style = 'color: #75A5B7 ; font-weight: bold;'), 
-      multiple = FALSE,
-      accept = c(".csv", ".tsv"),
-      width = '100%'
-   )
+
+### Init --------------------------------------------------------
 
 ### Select list origin
 in_exp_select_list =
@@ -25,6 +18,19 @@ in_exp_select_list =
       size = 'sm'
    )
 
+### Upload Name-Ticker List
+in_exp_upload_ticker_list =
+   fileInput(
+      inputId = "exp_upload_tickerlist",
+      label = span('Upload companies list', style = 'color: #75A5B7 ; font-weight: bold;'), 
+      multiple = FALSE,
+      accept = c(".csv", ".tsv"),
+      width = '100%'
+   )
+
+
+
+### Select Tickers --------------------------------------------------------
 
 ### Tickers Search from list
 in_exp_select_ticker =
@@ -33,7 +39,8 @@ in_exp_select_ticker =
       label = span('From list symbols', style = 'color: #75A5B7; font-weight: bold;'),
       # choices = engm_equities_list$name_company,
       choices = NULL, 
-      multiple = TRUE
+      multiple = TRUE,
+      width = '100%'
    )
 
 ### Tickers Search from list
@@ -41,7 +48,8 @@ in_exp_insert_ticker =
    textInput(
       inputId = 'exp_insert_ticker',
       label = span('Manual symbols', style = 'color: #75A5B7; font-weight: bold;'),
-      placeholder = 'Insert $TICKER'
+      placeholder = 'Insert $TICKER',
+      width = '100%'
    )
 
 ## Tickers Date Range Selector
@@ -54,13 +62,17 @@ in_exp_dateRange =
    )
 
 
-### Fetch Tickers button
-in_exp_button_fetchTickers = 
-   actionButton(
-      inputId = 'exp_button_fetchTickers',
-      label = 'Fetch',
-      class = 'btn-primary',
-      icon = shiny::icon("chevron-down"),
+### Plots options --------------------------------------------------------
+
+#### Price --------------------------------------------------------
+
+## Tickers Type of Aggregation
+in_exp_dataAgg =
+   radioButtons(
+      inputId = "exp_dataAgg",
+      label = span('Data aggregation', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('Price' = 'price', 'Week' = 'last_week', 'Month' = 'last_month', 'Quarter' = 'last_quarter', 'YTD  ' = 'ytd', '52 Weeks' = 'last_year'),
+      selected = 'price',
       width = '100%'
    )
 
@@ -81,6 +93,61 @@ in_exp_dataCalc =
       label = span('Calculation', style = 'color: #75A5B7; font-weight: bold;'),
       choices = c('Price' = 'calc_price', 'Returns' = 'calc_ret', 'Cum. Return' = 'calc_cum_ret'),
       selected = 'calc_price',
+      width = '100%'
+   )
+
+#### Financials --------------------------------------------------------
+
+
+
+
+### Table options --------------------------------------------------------
+
+#### Price --------------------------------------------------------
+
+#### Financials --------------------------------------------------------
+
+in_exp_select_tickerTable =
+   selectInput(
+      inputId = 'exp_select_tickerTable',
+      label = span('From list symbols', style = 'color: #75A5B7; font-weight: bold;'),
+      # choices = engm_equities_list$name_company,
+      choices = NULL, 
+      multiple = TRUE,
+      width = '100%'
+   )
+
+in_exp_finTime =
+   radioGroupButtons(
+      inputId = "exp_finTime",
+      label = span('Report time', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('Yearly' = 'table_yearly', 'Quarterly' = 'table_quarterly'),
+      selected = 'table_yearly',
+      justified = TRUE,
+      size = 'sm',
+      width = '100%'
+   )
+
+in_exp_finType =
+   radioButtons(
+      inputId = "exp_finType",
+      label = span('Statement type', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('Balance sheet' = 'table_type_bs', 'Income statement' = 'table_type_in', 'Cashflow statement' = 'table_type_cs'),
+      selected = 'table_type_bs',
+      width = '100%'
+   )
+
+
+
+### Execution buttons --------------------------------------------------------
+
+### Fetch Tickers button
+in_exp_button_fetchTickers = 
+   actionButton(
+      inputId = 'exp_button_fetchTickers',
+      label = 'Fetch price',
+      class = 'btn-primary',
+      icon = shiny::icon("chart-line"),
       width = '100%'
    )
 
@@ -105,14 +172,17 @@ in_exp_select_ticker_boxes =
    )
 
 ### Fetch Tickers button
-in_exp_button_selectTickers = 
+in_exp_button_fetchFinancials = 
    actionButton(
-      inputId = 'exp_button_selectTickers',
-      label = 'Select',
+      inputId = 'exp_button_fetchFinancials',
+      label = 'Fetch Financials',
       class = 'btn-secondary',
-      icon = shiny::icon("chess-bishop"),
+      icon = shiny::icon("file-invoice-dollar"),
       width = '100%'
    )
+
+
+
 
 
 

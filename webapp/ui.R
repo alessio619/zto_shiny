@@ -53,10 +53,11 @@ navbarPage(
       '.form-check, .shiny-input-container .checkbox, .shiny-input-container .radio {color: #4C6279;}'
    )), 
    
+   tags$style(HTML(
+      ' .bslib-sidebar-layout.sidebar-right>.collapse-toggle>.collapse-icon {color: #4C6279;}'
+   )),    
    
-      
-   
-   
+  
    ## Pages ------------------------------------
 
    tabPanel(
