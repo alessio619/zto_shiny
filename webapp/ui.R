@@ -37,13 +37,18 @@ navbarPage(
    ## Pages ------------------------------------
 
    tabPanel(
-      "Price",
-      page_price
+      "Explore",
+      page_explore
    ),
    
    tabPanel(
-      "Financials",
-      page_financials
+      "Analyze",
+      page_analyze
+   ),
+   
+   tabPanel(
+      "Portfolio",
+      page_portfolio
    )
    
    ## END 

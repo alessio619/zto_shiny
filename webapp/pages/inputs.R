@@ -1,7 +1,7 @@
 
 # Inputs ================================================================================
 
-## 01_pricing --------------------------------------------------------
+## 01_explore --------------------------------------------------------
 
 ### Upload Name-Ticker List
 in_exp_upload_ticker_list =
@@ -53,17 +53,6 @@ in_exp_dateRange =
       width = '100%'
    )
 
-## Tickers Type of Aggregation
-in_exp_dataAgg =
-   radioGroupButtons(
-      inputId = "exp_dataAgg",
-      label = span('Data aggregation', style = 'color: #75A5B7; font-weight: bold;'),
-      choices = c('Price' = 'price', 'Week' = 'last_week', 'Month' = 'last_month', 'Quarter' = 'last_quarter', 'YTD  ' = 'ytd', '52 Weeks' = 'last_year'),
-      selected = 'price',
-      justified = TRUE,
-      width = '100%',
-      size = 'sm'
-   )
 
 ### Fetch Tickers button
 in_exp_button_fetchTickers = 
@@ -75,16 +64,24 @@ in_exp_button_fetchTickers =
       width = '100%'
    )
 
+## Tickers Type of Aggregation
+in_exp_dataAgg =
+   radioButtons(
+      inputId = "exp_dataAgg",
+      label = span('Data aggregation', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('Price' = 'price', 'Week' = 'last_week', 'Month' = 'last_month', 'Quarter' = 'last_quarter', 'YTD  ' = 'ytd', '52 Weeks' = 'last_year'),
+      selected = 'price',
+      width = '100%'
+   )
+
 ### Choose Calculation
 in_exp_dataCalc =
-   radioGroupButtons(
+   radioButtons(
       inputId = "exp_dataCalc",
       label = span('Calculation', style = 'color: #75A5B7; font-weight: bold;'),
       choices = c('Price' = 'calc_price', 'Returns' = 'calc_ret', 'Cum. Return' = 'calc_cum_ret'),
       selected = 'calc_price',
-      justified = TRUE,
-      width = '100%',
-      size = 'sm'
+      width = '100%'
    )
 
 ### Download Tickers Price data
@@ -107,44 +104,16 @@ in_exp_select_ticker_boxes =
       multiple = FALSE
    )
 
-
-
-## 02_Financials --------------------------------------------------------
-
-### Tickers Search from list
-in_fin_select_ticker =
-   selectInput(
-      inputId = 'fin_select_ticker',
-      label = NULL,
-      # choices = engm_equities_list$name_company,
-      choices = NULL, 
-      multiple = TRUE
-   )
-
-### Tickers Search from list
-in_fin_insert_ticker =
-   textInput(
-      inputId = 'fin_insert_ticker',
-      label = span('Manual symbols', style = 'color: #75A5B7; font-weight: bold;'),
-      placeholder = 'Insert $TICKER'
-   )
-
 ### Fetch Tickers button
-in_fin_button_fetchTickers = 
+in_exp_button_selectTickers = 
    actionButton(
-      inputId = 'fin_button_fetchTickers',
-      label = 'Fetch',
-      class = 'btn-primary',
-      icon = shiny::icon("chevron-down"),
+      inputId = 'exp_button_selectTickers',
+      label = 'Select',
+      class = 'btn-secondary',
+      icon = shiny::icon("chess-bishop"),
       width = '100%'
    )
 
-### Download Tickers Financials data
-in_fin_button_download = 
-   downloadButton(
-      outputId = 'fin_button_download',
-      label = 'Download',
-      class = 'btn-danger',
-      icon = shiny::icon("floppy-disk"),
-      style = 'width: 100%;'
-   )
+
+
+## 02_Analyze --------------------------------------------------------

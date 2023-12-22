@@ -1,1 +1,0 @@
-page_companies =  'Page 2'
