@@ -18,7 +18,6 @@ box::use(reactable.extras[...])
 box::use(highcharter[...])
 box::use(shinyWidgets[...])
 box::use(bsicons[...])
-box::use(fc = ./webapp/financial)
 
 
 ## Additional Options ----------------------------------------------------------------
@@ -49,10 +48,10 @@ engm_equities_list = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')
 # write.csv2(dtw_in_a, 'data/annual_income_statement.csv')
 # write.csv2(dtw_bs_a, 'data/annual_balance_sheet.csv')
 # write.csv2(dtw_cs_a, 'data/annual_cashflow_statement.csv')
-
-dtw_in_a = read.csv2('data/annual_income_statement.csv')
-dtw_bs_a = read.csv2('data/annual_balance_sheet.csv')
-dtw_cs_a = read.csv2('data/annual_cashflow_statement.csv')
+# 
+# dtw_in_a = read.csv2('data/annual_income_statement.csv')
+# dtw_bs_a = read.csv2('data/annual_balance_sheet.csv')
+# dtw_cs_a = read.csv2('data/annual_cashflow_statement.csv')
 
 
 # list_ticker_q = fc$fetch_statements_quarterly(id_ticker)
@@ -63,8 +62,8 @@ dtw_cs_a = read.csv2('data/annual_cashflow_statement.csv')
 ## Export
 # write.csv2(dtw_in_q, 'data/quarterly_income_statement.csv')
 # write.csv2(dtw_cs_q, 'data/quarterly_cashflow_statement.csv')
-
-dtw_in_q = read.csv2('data/quarterly_income_statement.csv')
-dtw_cs_q = read.csv2('data/quarterly_cashflow_statement.csv')
+# 
+# dtw_in_q = read.csv2('data/quarterly_income_statement.csv')
+# dtw_cs_q = read.csv2('data/quarterly_cashflow_statement.csv')
 
 

@@ -1,7 +1,7 @@
 
 # Tickers historical API ========================
 
-#' @export
+
 
 fetch_tickers = function(TICKERS, INIT_DATE = '2021-01-01', END_DATE = Sys.Date()) {
    
@@ -29,7 +29,7 @@ fetch_tickers = function(TICKERS, INIT_DATE = '2021-01-01', END_DATE = Sys.Date(
 # Aggregation Function ========================
 
 
-#' @export
+
 
 calc_agg = function(DT) {
    
@@ -64,7 +64,7 @@ calc_agg = function(DT) {
 # Financial Statements  ----------------------------------------------------------------
 
 
-#' @export
+
 
 fetch_statements_annual = function(SYMBOL) {
    
@@ -83,7 +83,7 @@ fetch_statements_annual = function(SYMBOL) {
 }
 
 
-#' @export
+
 
 get_financial_statements_annual = function(TICKER_LIST, STMT) {
    
@@ -135,7 +135,7 @@ get_financial_statements_annual = function(TICKER_LIST, STMT) {
 
 
 
-#' @export
+
 
 fetch_statements_quarterly = function(SYMBOL) {
    
@@ -155,7 +155,7 @@ fetch_statements_quarterly = function(SYMBOL) {
 
 
 
-#' @export
+
 
 get_financial_statements_quarterly = function(TICKER_LIST, STMT) {
    
@@ -192,5 +192,44 @@ get_financial_statements_quarterly = function(TICKER_LIST, STMT) {
    data.table::setcolorder(dt_x, neworder = c('id', 'stmt', 'voice'))
    
    return(dt_x)
+   
+}
+
+
+
+
+fetch_statements = function(TICKER) {
+   
+   list_ticker_a = fetch_statements_annual(TICKER)
+   
+   dtw_bs_a = get_financial_statements_annual(list_ticker_a, STMT = 'balance')
+   dtw_in_a = get_financial_statements_annual(list_ticker_a, STMT = 'income')
+   dtw_cs_a = get_financial_statements_annual(list_ticker_a, STMT = 'cash')
+   
+   ## Retrieve Quarterly data YF ---------------------------------
+   list_ticker_q = fetch_statements_quarterly(TICKER)
+   
+   dtw_in_q = get_financial_statements_quarterly(list_ticker_q, STMT = 'income')
+   dtw_cs_q = get_financial_statements_quarterly(list_ticker_q, STMT = 'cash')
+   
+   lista_stmt = list(dtw_bs_a, dtw_in_a, dtw_cs_a, dtw_in_q, dtw_cs_q)
+   names(lista_stmt) = c('bs_y', 'in_y', 'cs_y', 'in_q', 'cs_q')
+   
+   return(lista_stmt)
+   
+}
+
+
+
+
+get_statements = function(TICKERS) {
+   
+   result_list = list()
+   
+   for (i in TICKERS) {
+      result_list[[i]] = fetch_statements(i)
+   }
+   
+   return(result_list)
    
 }

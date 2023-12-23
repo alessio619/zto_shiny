@@ -5,7 +5,7 @@ server_app = function(input, output, session) {
 
    ## 01_explorer --------------------------------------------------------
    
-   ### Ticker list
+   ### Ticker list -------------------
    tickers_full_list = eventReactive(input$exp_select_list, {
       engm_equities_lista = NULL  # Initialize outside the conditions
       
@@ -59,12 +59,11 @@ server_app = function(input, output, session) {
       ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
       full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
       
-      x = full_list
-      if (is.null(x))
-         x = character(0)
+      if (is.null(full_list))
+         full_list = character(0)
       updateSelectInput(session, 'exp_select_tickerTable',
                         label = NULL,
-                        choices = unique(x)
+                        choices = unique(full_list)
       )
    })   
    
@@ -248,20 +247,11 @@ server_app = function(input, output, session) {
       
       req(ticker_list())
       
-      print('INIT')
+      list_ticker = get_statements(ticker_list())
       
-      list_ticker_a = fc$fetch_statements_annual(ticker_list()[1])
-      dtw_bs_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'balance')
-      dtw_in_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'income')
-      dtw_cs_a = fc$get_financial_statements_annual(list_ticker_a, STMT = 'cash')
+      return(list_ticker)
       
-      list_ticker_q = fc$fetch_statements_quarterly(ticker_list()[1])
-      dtw_in_q = fc$get_financial_statements_quarterly(list_ticker_q, STMT = 'income')
-      dtw_cs_q = fc$get_financial_statements_quarterly(list_ticker_q, STMT = 'cash')
-      
-      dt_sym_wk = list(dtw_bs_a, dtw_in_a, dtw_cs_a, dtw_in_q, dtw_cs_q)
-      return(dt_sym_wk)
-      print('END')
+      print('ok')
       
    })
    
@@ -271,22 +261,21 @@ server_app = function(input, output, session) {
       
       req(dt_fetchedFinancials())
       
-      print('DETECTED')
+      DT = copy(dt_fetchedFinancials())
       
-      DTS = copy(dt_tickersTable())
-      # setnames(DTW, old = names(DTW), new = toupper(names(DTW)))
-      
+      DTS = DT[[1]]
+
       if(input$exp_finTime == 'table_yearly') {
-         
-         if(input$exp_finType == 'table_type_bs') {DTW = copy(DTS[1])}
-         if(input$exp_finType == 'table_type_in') {DTW = copy(dtw_in_a)}
-         if(input$exp_finType == 'table_type_cs') {DTW = copy(dtw_cs_a)}
-         
+
+         if(input$exp_finType == 'table_type_bs') {DTW = copy(DTS[['bs_y']])}
+         if(input$exp_finType == 'table_type_in') {DTW = copy(DTS[['in_y']])}
+         if(input$exp_finType == 'table_type_cs') {DTW = copy(DTS[['cs_y']])}
+
       } else if(input$exp_finTime == 'table_quarterly') {
-         
-         if(input$exp_finType == 'table_type_in') {DTW = copy(dtw_in_q)}
-         if(input$exp_finType == 'table_type_cs') {DTW = copy(dtw_cs_q)}
-         
+
+         if(input$exp_finType == 'table_type_in') {DTW = copy(DTS[['in_q']])}
+         if(input$exp_finType == 'table_type_cs') {DTW = copy(DTS[['cs_q']])}
+
       }
       
       reactable(DTW,
@@ -308,7 +297,7 @@ server_app = function(input, output, session) {
    output$texto = renderPrint({
 
       dt_fetchedFinancials()
-      
+
    })
   
 }

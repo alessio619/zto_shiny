@@ -18,7 +18,7 @@ source(file.path(base_path, "financial.R"))
 
 # UI ===============================================================
 source(file.path(base_path, 'pages', "inputs.R"))
-source(file.path(base_path, 'pages', '01_explore.R'))
+source(file.path(base_path, 'pages', '01_explorer.R'))
 source(file.path(base_path, 'pages', '02_analyze.R'))
 source(file.path(base_path, 'pages', '03_portfolio.R'))
 source(file.path(base_path, 'ui.R'))
