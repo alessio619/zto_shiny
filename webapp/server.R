@@ -249,9 +249,11 @@ server_app = function(input, output, session) {
    ### Fetch financial data ---------------------------------------------------------
    
    w = Waiter$new(
-      html = spin_3(), 
+      html = spin_3(),
+         # span("Retrieving financial data...", style = 'font-size: 1.5em; font-weight: bold; padding-left: 1.5vh;')
       color = transparent(.5)
    )   
+   
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedFinancials = eventReactive(input$exp_button_fetchFinancials, {
@@ -293,8 +295,8 @@ server_app = function(input, output, session) {
       
       DT = copy(dt_fetchedFinancials())
       
-      # DTS = DT[[input$exp_select_ticker_boxes]]
-      DTS = DT[[1]]
+      DTS = DT[[input$exp_select_tickerTable]]
+      # DTS = DT[[1]]
       
       if(input$exp_finTime == 'table_yearly') {
 
@@ -351,7 +353,7 @@ server_app = function(input, output, session) {
    
    output$texto = renderPrint({
 
-      dt_fetchedFinancials()
+      names(dt_fetchedFinancials())
 
    })
   

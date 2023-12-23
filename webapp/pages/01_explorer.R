@@ -4,7 +4,10 @@
 page_explore =  fluidPage(
    
    useWaiter(),
-   # fluidRow(textOutput('texto')),
+   useAttendant(),
+   attendantBar("progress-bar"),
+   
+   fluidRow(textOutput('texto')),
    
 fluidRow( # big fluid row start
    

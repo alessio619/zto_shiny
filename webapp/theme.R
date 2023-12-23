@@ -33,7 +33,7 @@ zto_reactable_theme = reactableTheme(
    backgroundColor = '#f9f9f9',
    borderColor = "#dfe2e5",
    stripedColor = "#f2f2f2",
-   highlightColor = "#CDC1AB",
+   highlightColor = "#e6e6e6",
    headerStyle = list(fontSize = '16px', paddingTop = '10px', paddingBottom = '10px'),
    style = list(fontFamily = "Inter, -apple-system, Segoe UI, Helvetica, sans-serif"),
    searchInputStyle = list(width = "100%")
