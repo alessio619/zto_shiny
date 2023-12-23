@@ -3,6 +3,7 @@
 
 page_explore =  fluidPage(
    
+   useWaiter(),
    # fluidRow(textOutput('texto')),
    
 fluidRow( # big fluid row start
@@ -33,11 +34,13 @@ fluidRow( # big fluid row start
          br(),
          card(style = 'border-color: rgb(221, 221, 221);',
             in_exp_button_fetchTickers,
-            in_exp_button_fetchFinancials,
-            in_exp_button_download
+            in_exp_button_fetchFinancials
          ) ### card
      ),         
-         
+     
+     
+     ## Value boxes --------------------------------------------------
+     
      column(width = 9,
          card(style = 'height: 27vh; border-color: rgb(221, 221, 221);',
               card_header(in_exp_select_ticker_boxes),
@@ -81,6 +84,10 @@ fluidRow( # big fluid row start
                  )
               ) ### card body
          ), ### card ### card
+         
+         
+         ## Plots --------------------------------------------------
+         
          navset_card_pill(height = '56vh',
                          title = (span('Plots', style = 'color: #4C6279; font-weight: bold;')),
             nav_panel(
@@ -123,7 +130,15 @@ fluidRow( # big fluid row start
             
          nav_panel(
             title = "Price",
-            reactableOutput(outputId = 'exp_table_tickersSeries')
+            layout_sidebar(
+               bg = '#f9f9f9',
+               border = FALSE, 
+               height = '56vh',
+               sidebar = sidebar(title = "Price controls",
+                                 position = "right", open = 'closed',
+                                 in_exp_button_downloadPrice),
+               reactableOutput(outputId = 'exp_table_tickersSeries')
+              )
             ),
          nav_panel(
             title = "Financials",
@@ -135,7 +150,8 @@ fluidRow( # big fluid row start
                                  position = "right", open = 'closed',
                                  in_exp_select_tickerTable,
                                  in_exp_finTime,
-                                 in_exp_finType), ### sidebar
+                                 in_exp_finType,
+                                 in_exp_button_downloadFinancials), ### sidebar
                reactableOutput(outputId = 'exp_table_tickersFinancials')
               ) ### layout sidebar
             ) ### nav panel         

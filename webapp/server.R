@@ -79,6 +79,9 @@ server_app = function(input, output, session) {
 
    })
    
+   
+   ### Fetch market data ---------------------------------------------------------
+   
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
       req(ticker_list())
@@ -229,11 +232,11 @@ server_app = function(input, output, session) {
    
    
    ### Download Tickers Data
-   output$exp_button_download = downloadHandler(
+   output$exp_button_downloadPrice = downloadHandler(
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset', ".csv")
+         paste0('dataset-price', ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -242,29 +245,57 @@ server_app = function(input, output, session) {
    )   
    
    
+   
+   ### Fetch financial data ---------------------------------------------------------
+   
+   w = Waiter$new(
+      html = spin_3(), 
+      color = transparent(.5)
+   )   
+   
    ### Fetch and Retrieve Tickers Data
    dt_fetchedFinancials = eventReactive(input$exp_button_fetchFinancials, {
       
       req(ticker_list())
       
+      w$show()
+      
       list_ticker = get_statements(ticker_list())
       
-      return(list_ticker)
+      on.exit({
+         w$hide()
+      })
       
-      print('ok')
+      return(list_ticker)
       
    })
    
    
+   ### Update selector
+   observe({
+      
+      req(dt_fetchedFinancials())
+      
+      x = names(dt_fetchedFinancials())      
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_tickerTable',
+                        label = NULL,
+                        choices = unique(x)
+      )
+   })   
+   
+   
    ### Table Retrieved companies data
-   output$exp_table_tickersFinancials = renderReactable({
+   dt_table_tickersFinancials = reactive({
       
       req(dt_fetchedFinancials())
       
       DT = copy(dt_fetchedFinancials())
       
+      # DTS = DT[[input$exp_select_ticker_boxes]]
       DTS = DT[[1]]
-
+      
       if(input$exp_finTime == 'table_yearly') {
 
          if(input$exp_finType == 'table_type_bs') {DTW = copy(DTS[['bs_y']])}
@@ -278,6 +309,19 @@ server_app = function(input, output, session) {
 
       }
       
+      return(DTW)
+
+   })
+   
+   
+   ### Table Retrieved companies financial data
+   output$exp_table_tickersFinancials = renderReactable({
+      
+      req(dt_table_tickersFinancials())
+      
+      DTW = copy(dt_table_tickersFinancials())
+      # setnames(DTW, old = names(DTW), new = toupper(names(DTW)))
+      
       reactable(DTW,
                 highlight = TRUE,
                 outlined = FALSE,
@@ -287,11 +331,22 @@ server_app = function(input, output, session) {
       
    })
    
+   ### Download Tickers Data
+   output$exp_button_downloadFinancials= downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-financial', ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_table_tickersFinancials(), file)
+      }
+   ) 
    
-   # ## 02_financials --------------------------------------------------------
+   
+   # ## 02_analyze --------------------------------------------------------
 
-   
-   
    ## END --------------
    
    output$texto = renderPrint({

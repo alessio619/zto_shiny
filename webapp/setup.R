@@ -8,7 +8,7 @@
 
 box::use(shiny[...])
 box::use(bslib[...])
-#box::use(waiter[...])
+box::use(waiter[...])
 box::use(data.table[...])
 box::use(quantmod[...])
 box::use(xts[...])

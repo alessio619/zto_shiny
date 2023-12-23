@@ -152,9 +152,19 @@ in_exp_button_fetchTickers =
    )
 
 ### Download Tickers Price data
-in_exp_button_download = 
+in_exp_button_downloadPrice = 
    downloadButton(
-      outputId = 'exp_button_download',
+      outputId = 'exp_button_downloadPrice',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk"),
+      style = 'width: 100%;'
+   )
+
+
+in_exp_button_downloadFinancials = 
+   downloadButton(
+      outputId = 'exp_button_downloadFinancials',
       label = 'Download',
       class = 'btn-danger',
       icon = shiny::icon("floppy-disk"),
