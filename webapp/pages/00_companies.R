@@ -15,17 +15,23 @@ page_backend =  fluidPage(
              accordion(
                 accordion_panel(
                    title = h2('Database', style = 'color: #4C6279'),
-                   in_bck_select_list,
+                   'In this section...',
                    value = 'bck_01'
                 ) ### accordion panel
              ), ### accordion
+       
+       br(),
       
       ## Add --------------------------------------------------
       accordion(
          accordion_panel(
-            title = h5('Add company manual', style = 'color: #4C6279'),
-            'placeholder',
-            actionButton("openModalBtn", "Add company"),
+            title = h5('Edit companies', style = 'color: #4C6279'),
+            in_bck_add_company,
+            br(), br(),
+            in_bck_select_list,
+            in_bck_edit_company,
+            br(), br(),
+            in_bck_delete_company,
             value = 'bck_02'
          ) ### accordion panel
         ) ### accordion      

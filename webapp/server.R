@@ -369,24 +369,24 @@ server_app = function(input, output, session) {
    
    
    ### Manua add company --------------------------------------------------------
-   observeEvent(input$openModalBtn, {
+   observeEvent(input$bck_add_company, {
       showModal(
          modalDialog(
-            id = "addCompanyModal",
+            id = "bck_addCompanyModal",
             title = "Add Company",
-            textInput("companySymbolInput", "Company ID"),
-            textInput("companyNameInput", "Company Name"),
-            selectInput("industryInput", "Industry", choices = c("Technology", "Finance", "Other")),
-            selectInput("marketInput", "Market", choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE")),
-            textInput("headquartersInput", "Headquarters"),
-            numericInput("foundedYearInput", "Founded Year", value = 2000, min = 1800, max = 2023),
-            selectInput("statusInput", "Status", choices = c("Active", "Inactive", "Pending")),
-            actionButton("addCompanyBtn", "Add Company")
+            bck_companySymbolInput,
+            bck_companyNameInput,
+            bck_industryInput,
+            bck_marketInput,
+            bck_headquartersInput,
+            bck_foundedYearInput,
+            bck_statusInput,
+            in_bck_add_company_modal
          )
       )
    })
    
-   observeEvent(input$addCompanyBtn, {
+   observeEvent(input$bck_addCompanyBtn, {
       # Retrieve values from inputs
       company_id = input$companySymbolInput
       company_name = input$companyNameInput
@@ -403,7 +403,7 @@ server_app = function(input, output, session) {
       removeModal()
    })
    
-   trial_add = eventReactive(input$addCompanyBtn, {
+   trial_add = eventReactive(input$bck_addCompanyBtn, {
       
       company_id = input$companySymbolInput
       company_name = input$companyNameInput
