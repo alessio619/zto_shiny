@@ -146,7 +146,7 @@ in_exp_button_fetchTickers =
    actionButton(
       inputId = 'exp_button_fetchTickers',
       label = 'Fetch price',
-      class = 'btn-primary',
+      class = 'btn-success',
       icon = shiny::icon("chart-line"),
       width = '100%'
    )
@@ -186,7 +186,7 @@ in_exp_button_fetchFinancials =
    actionButton(
       inputId = 'exp_button_fetchFinancials',
       label = 'Fetch Financials',
-      class = 'btn-secondary',
+      class = 'btn-info',
       icon = shiny::icon("file-invoice-dollar"),
       width = '100%'
    )

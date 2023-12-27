@@ -160,9 +160,9 @@ server_app = function(input, output, session) {
       round(mean(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
    })   
 
-   output$calc_median_value = renderText({
+   output$calc_current_value = renderText({
       req(dt_tickersAgg())
-      round(median(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
+      round(tail(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, 1), digits = 2)
    })   
    
    
@@ -226,7 +226,11 @@ server_app = function(input, output, session) {
                 outlined = FALSE,
                 compact = TRUE,
                 wrap = FALSE,
-                defaultPageSize = 12)
+                defaultPageSize = 12,
+                columns = list(
+                   TICKER = colDef(
+                      filterable = TRUE))
+      )
       
    })
    

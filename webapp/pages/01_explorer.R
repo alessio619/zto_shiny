@@ -52,6 +52,14 @@ fluidRow( # big fluid row start
                  layout_column_wrap(
                     !!!list(
                        value_box(
+                          title = "Current",
+                          value = textOutput("calc_current_value"),
+                          showcase = bs_icon("calculator", size = '0.5em'),
+                          showcase_layout = "top right",
+                          theme = value_box_theme(bg = "#f9f9f9", fg = "#4C6279"),
+                          class = "border"
+                       ),                       
+                       value_box(
                           title = "Maximum",
                           value = textOutput("calc_max_value"),
                           showcase = bs_icon("graph-up", size = '0.5em'),
@@ -74,14 +82,6 @@ fluidRow( # big fluid row start
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#75A5B7"),
                           showcase_layout = "top right",
                           class = "border"
-                       ),
-                       value_box(
-                          title = "Median",
-                          value = textOutput("calc_median_value"),
-                          showcase = bs_icon("calculator", size = '0.5em'),
-                          showcase_layout = "top right",
-                          theme = value_box_theme(bg = "#f9f9f9", fg = "#4C6279"),
-                          class = "border"
                        )
                     )
                  )
@@ -92,9 +92,9 @@ fluidRow( # big fluid row start
          ## Plots --------------------------------------------------
          
          navset_card_pill(height = '56vh',
-                         title = (span('Plots', style = 'color: #4C6279; font-weight: bold;')),
+                         title = (span('Market data', style = 'color: #4C6279; font-weight: bold;')),
             nav_panel(
-              title = "Price",
+              title = "Historical Price",
               layout_sidebar(
                  bg = '#f9f9f9',
                  border = FALSE, 
@@ -102,24 +102,15 @@ fluidRow( # big fluid row start
                  sidebar = sidebar(title = "Price controls",
                                    position = "right", open = 'closed',
                                    in_exp_dataAgg,
-                                   in_exp_dataCalc), ### sidebar
+                                   in_exp_dataCalc,
+                                   in_exp_button_downloadPrice), ### sidebar
                  highchartOutput(outputId = 'exp_plot_tickersSeries', width = '100%', height = '40vh')
               ), ### layout sidebar,
          ), ### navpillcard  
          
          nav_panel(
-            title = "Financials",         
-         #    layout_sidebar(
-         #       bg = '#f9f9f9',
-         #       border = FALSE, 
-         #       height = '56vh',
-         #       sidebar = sidebar(title = "Financial controls",
-         #                         position = "right", open = 'closed',
-         #                         in_exp_finTime,
-         #                         in_exp_finType), ### sidebar
-         #      
-         # ) ### layout sidebar
-         'placeholder'
+            title = "Table",         
+            reactableOutput(outputId = 'exp_table_tickersSeries')
       ) ### navpillcard
       
       ), ### card
@@ -129,22 +120,10 @@ fluidRow( # big fluid row start
       
       navset_card_pill(
             height = '53vh',
-            title = (span('Tables', style = 'color: #4C6279; font-weight: bold;')),
+            title = (span('Financials', style = 'color: #4C6279; font-weight: bold;')),
             
          nav_panel(
-            title = "Price",
-            layout_sidebar(
-               bg = '#f9f9f9',
-               border = FALSE, 
-               height = '56vh',
-               sidebar = sidebar(title = "Price controls",
-                                 position = "right", open = 'closed',
-                                 in_exp_button_downloadPrice),
-               reactableOutput(outputId = 'exp_table_tickersSeries')
-              )
-            ),
-         nav_panel(
-            title = "Financials",
+            title = "Statements",
             layout_sidebar(
                bg = '#f9f9f9',
                border = FALSE, 
@@ -156,7 +135,23 @@ fluidRow( # big fluid row start
                                  in_exp_finType,
                                  in_exp_button_downloadFinancials), ### sidebar
                reactableOutput(outputId = 'exp_table_tickersFinancials')
-              ) ### layout sidebar
+             ) ### layout sidebar
+            ),
+         nav_panel(
+            title = "Metrics",
+            'placeholder'
+            # layout_sidebar(
+            #    bg = '#f9f9f9',
+            #    border = FALSE, 
+            #    height = '56vh',
+            #    sidebar = sidebar(title = "Financial controls",
+            #                      position = "right", open = 'closed',
+            #                      in_exp_select_tickerTable,
+            #                      in_exp_finTime,
+            #                      in_exp_finType,
+            #                      in_exp_button_downloadFinancials), ### sidebar
+            #    reactableOutput(outputId = 'exp_table_tickersFinancials')
+            #   ) ### layout sidebar
             ) ### nav panel         
           ) ### card body
          

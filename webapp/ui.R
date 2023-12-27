@@ -49,6 +49,10 @@ navbarPage(
       '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
    )), 
    
+   # tags$style(HTML(
+   #    '.bslib-sidebar-layout .sidebar {background-color: #dddddd; border-left-color: rgb(221, 221, 221);}'
+   # )), 
+   
    tags$style(HTML(
       '.form-check, .shiny-input-container .checkbox, .shiny-input-container .radio {color: #4C6279;}'
    )), 
