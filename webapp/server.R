@@ -351,14 +351,115 @@ server_app = function(input, output, session) {
    ) 
    
    
-   # ## 02_analyze --------------------------------------------------------
+   # 02_analyze --------------------------------------------------------
+   
+   
+   # 00_backend --------------------------------------------------------
+   
+   ### Update selector
+   observe({
+      
+      x = dt_connn$company_id
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'bck_select_list',
+                        choices = unique(x)
+      )
+   })
+   
+   
+   ### Manua add company --------------------------------------------------------
+   observeEvent(input$openModalBtn, {
+      showModal(
+         modalDialog(
+            id = "addCompanyModal",
+            title = "Add Company",
+            textInput("companySymbolInput", "Company ID"),
+            textInput("companyNameInput", "Company Name"),
+            selectInput("industryInput", "Industry", choices = c("Technology", "Finance", "Other")),
+            selectInput("marketInput", "Market", choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE")),
+            textInput("headquartersInput", "Headquarters"),
+            numericInput("foundedYearInput", "Founded Year", value = 2000, min = 1800, max = 2023),
+            selectInput("statusInput", "Status", choices = c("Active", "Inactive", "Pending")),
+            actionButton("addCompanyBtn", "Add Company")
+         )
+      )
+   })
+   
+   observeEvent(input$addCompanyBtn, {
+      # Retrieve values from inputs
+      company_id = input$companySymbolInput
+      company_name = input$companyNameInput
+      industry = input$industryInput
+      market = input$marketInput
+      headquarters = input$headquartersInput
+      founded_year = input$foundedYearInput
+      status = input$statusInput
+      
+      # Insert a new row into the my_companies table
+      dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                list(company_id, company_name, industry, market, headquarters, founded_year, status))
 
+      removeModal()
+   })
+   
+   trial_add = eventReactive(input$addCompanyBtn, {
+      
+      company_id = input$companySymbolInput
+      company_name = input$companyNameInput
+      industry = input$industryInput
+      market = input$MarketInput
+      headquarters = input$headquartersInput
+      founded_year = input$foundedYearInput
+      status = input$statusInput
+      
+      return(data.table(company_id, company_name, industry, market, headquarters, founded_year, status))
+   
+      })
+   
+   output$texto2 = renderTable({
+      trial_add()
+   })
+   
+   data = data.frame(
+      ID = 1:1000,
+      SKU_Number = paste0("SKU ", 1:1000),
+      Actions = rep(c("Updated", "Initialized"), times = 20),
+      Registered = as.Date("2023/1/1")
+   )
+   
+   output$bck_table_trialdb = renderReactable({
+      # Create a reactable table with enhanced features
+      reactable(
+         data,
+         columns = list(
+            ID = colDef(name = "ID"),
+            SKU_Number = colDef(name = "SKU_Number"),
+            Actions = colDef(
+               name = "Actions",
+               cell = button_extra("button", class = "btn btn-primary")
+            ),
+            Registered = colDef(
+               cell = date_extra("Registered", class = "date-extra")
+            )
+         )
+      )
+   })
+   
+   observeEvent(input$button, {
+      showModal(modalDialog(
+         title = "Selected row data",
+         reactable(data[input$button$row, ])
+      ))
+   })
+   
+   
    ## END --------------
    
-   output$texto = renderPrint({
+   output$texto = renderTable({
 
-      names(dt_fetchedFinancials())
-
+      dt_connn
+      
    })
   
 }

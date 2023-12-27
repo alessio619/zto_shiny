@@ -18,6 +18,9 @@ box::use(reactable.extras[...])
 box::use(highcharter[...])
 box::use(shinyWidgets[...])
 box::use(bsicons[...])
+box::use(RSQLite[...])
+box::use(DBI[...])
+
 
 
 ## Additional Options ----------------------------------------------------------------
@@ -26,6 +29,11 @@ options(shiny.maxRequestSize = 200*1024^2)
 
 cat('021 ADMP - LOADING: Please wait while app is getting ready in your default browser...')
 
+
+## Load SQLite DB ----------------------------------------------------------------
+
+connn = dbConnect(SQLite(), dbname = "data/zto_database.db")
+dt_connn = data.table::data.table(dbReadTable(connn, "my_companies"))
 
 
 ## Euronext Growth Milan List ----------------------------------------------------------------

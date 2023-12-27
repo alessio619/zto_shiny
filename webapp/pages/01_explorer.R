@@ -1,13 +1,11 @@
 
-# Page Price & Trading ================================================================================
+# Page Explorer ================================================================================
 
-page_explore =  fluidPage(
+page_explorer =  fluidPage(
    
    useWaiter(),
-   useAttendant(),
-   attendantBar("progress-bar"),
    
-   fluidRow(textOutput('texto')),
+   fluidRow(tableOutput('texto')),
    
 fluidRow( # big fluid row start
    

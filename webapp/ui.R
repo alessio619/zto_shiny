@@ -66,7 +66,7 @@ navbarPage(
 
    tabPanel(
       "Explore",
-      page_explore
+      page_explorer
    ),
    
    tabPanel(
@@ -77,6 +77,11 @@ navbarPage(
    tabPanel(
       "Portfolio",
       page_portfolio
+   ),
+   
+   tabPanel(
+      'Backend',
+      page_backend
    )
    
    ## END 

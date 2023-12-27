@@ -4,7 +4,7 @@ library(DBI)
 
 
 # Create a connection to the SQLite database -----------------
-con <- dbConnect(SQLite(), dbname = "zto_database.db")
+con = dbConnect(SQLite(), dbname = "data/zto_database.db")
 
 # Create the tables -------------------------------------
 
@@ -17,7 +17,7 @@ dbExecute(con, "CREATE TABLE my_companies (
   market TEXT,
   headquarters TEXT,
   founded_year INTEGER,
-  status TEXT CHECK(status IN ('Active', 'Inactive', 'Pending'))
+  status TEXT CHECK(status IN ('Active', 'Inactive', 'Pending', 'Follow'))
 )")
 
 dbExecute(con, "CREATE INDEX idx_company_id ON my_companies(company_id)")
@@ -96,9 +96,10 @@ dbWriteTable(con, "my_companies", sample_data, append = TRUE)
 
 
 # Read tables -------------------------
-# View data in the "my_companies" table
-my_companies_data = dbGetQuery(con, "SELECT * FROM my_companies")
-print(my_companies_data)
+
+dtw = data.table::data.table(dbReadTable(con, "my_companies"))
+
+print(dtw)
 
 
 # Close the database connection --------------------

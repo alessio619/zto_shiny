@@ -196,4 +196,19 @@ in_exp_button_fetchFinancials =
 
 
 
-## 02_Analyze --------------------------------------------------------
+## 00_Backend --------------------------------------------------------
+
+### Init --------------------------------------------------------
+
+### Select list origin
+in_bck_select_list =
+   selectInput(
+      inputId = "bck_select_list",
+      label = span('List', style = 'color: #75A5B7; font-weight: bold;'), 
+      choices = NULL,
+      width = '100%'
+   )
+
+
+
+
