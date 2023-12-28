@@ -49,10 +49,48 @@ navbarPage(
       '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
    )), 
    
+   ############   ############   ############   ############   ############   ############   ############
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
+   tags$style(HTML(
+      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+   )), 
+   
    # tags$style(HTML(
    #    '.bslib-value-box .value-box-title {font-family: Inter important!;}'
    # )),
    
+   ############   ############   ############   ############   ############   ############   ############
    tags$style(HTML(
       '.form-check, .shiny-input-container .checkbox, .shiny-input-container .radio {color: #4C6279;}'
    )), 

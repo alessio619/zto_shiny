@@ -412,7 +412,11 @@ server_app = function(input, output, session) {
             bck_headquartersInput,
             bck_foundedYearInput,
             bck_statusInput,
-            in_bck_add_company_modal
+            
+            footer = tagList(
+               in_bck_add_company_modal,
+               modalButton("Dismiss")
+            )
          )
       )
    })
@@ -435,21 +439,21 @@ server_app = function(input, output, session) {
    })
    
    
-   trial_add = eventReactive(input$bck_addCompanyBtn, {
-      
-      company_id = input$companySymbolInput
-      company_name = input$companyNameInput
-      industry = input$industryInput
-      market = input$MarketInput
-      headquarters = input$headquartersInput
-      founded_year = input$foundedYearInput
-      status = input$statusInput
-      
-      return(data.table(company_id, company_name, industry, market, headquarters, founded_year, status))
+   # trial_add = eventReactive(input$bck_addCompanyBtn, {
+   #    
+   #    company_id = input$companySymbolInput
+   #    company_name = input$companyNameInput
+   #    industry = input$industryInput
+   #    market = input$MarketInput
+   #    headquarters = input$headquartersInput
+   #    founded_year = input$foundedYearInput
+   #    status = input$statusInput
+   #    
+   #    return(data.table(company_id, company_name, industry, market, headquarters, founded_year, status))
+   # 
+   #    })
    
-      })
-   
-   ## Delete company ----------------
+   ## Delete company --------------------------------------------------------
    
    observeEvent(input$bck_delete_company, {
       
@@ -468,10 +472,50 @@ server_app = function(input, output, session) {
       
          delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
          dbExecute(connn, delete_queries)
+         
          removeModal()
    })
    
    
+      ## Edit Company --------------------------------------------------------
+      
+      observeEvent(input$bck_edit_company, {
+         showModal(
+            modalDialog(
+               id = "bck_edit_company_2",
+               title = "Edit Company",
+               bck_edit_companySymbolInput,
+               bck_edit_companyNameInput,
+               bck_edit_industryInput,
+               bck_edit_marketInput,
+               bck_edit_headquartersInput,
+               bck_edit_foundedYearInput,
+               bck_edit_statusInput,
+               
+               footer = tagList(
+                  in_bck_edit_company_modal,
+                  modalButton("Dismiss")
+               )
+            )
+         )
+      })
+      
+      observeEvent(input$edit_bck_addCompanyBtn, {
+         # Retrieve values from inputs
+         company_id = input$edit_companySymbolInput
+         company_name = input$edit_companyNameInput
+         industry = input$edit_industryInput
+         market = input$edit_marketInput
+         headquarters = input$edit_headquartersInput
+         founded_year = input$edit_foundedYearInput
+         status = input$edit_statusInput
+         
+         # Insert a new row into the my_companies table
+         dbExecute(con, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
+                   list(company_id, company_name, industry, market, headquarters, founded_year, status))
+         
+         removeModal()
+      })   
    
    
    output$texto2 = renderTable({
