@@ -439,21 +439,8 @@ server_app = function(input, output, session) {
    })
    
    
-   # trial_add = eventReactive(input$bck_addCompanyBtn, {
-   #    
-   #    company_id = input$companySymbolInput
-   #    company_name = input$companyNameInput
-   #    industry = input$industryInput
-   #    market = input$MarketInput
-   #    headquarters = input$headquartersInput
-   #    founded_year = input$foundedYearInput
-   #    status = input$statusInput
-   #    
-   #    return(data.table(company_id, company_name, industry, market, headquarters, founded_year, status))
-   # 
-   #    })
    
-   ## Delete company --------------------------------------------------------
+   ### Delete company --------------------------------------------------------
    
    observeEvent(input$bck_delete_company, {
       
@@ -477,7 +464,7 @@ server_app = function(input, output, session) {
    })
    
    
-      ## Edit Company --------------------------------------------------------
+      ### Edit Company --------------------------------------------------------
       
       observeEvent(input$bck_edit_company, {
          showModal(
@@ -500,6 +487,29 @@ server_app = function(input, output, session) {
          )
       })
       
+      ### Update selector
+      dt_con_companies_edit = reactive({
+
+         DTW = copy(dt_con_companies())
+         DTS = DTW[company_id == input$bck_select_list]
+         
+         return(DTS)
+         
+      })
+      
+      observeEvent(input$bck_edit_company, {
+         
+         DT = dt_con_companies_edit()
+         updateTextInput(session, 'edit_companySymbolInput', value = unique(DT$company_id))
+         updateTextInput(session, 'edit_companyNameInput', value = unique(DT$company_name))
+         updateSelectInput(session, 'edit_industryInput', choices = unique(DT$industry))
+         updateSelectInput(session, 'edit_marketInput', choices = unique(DT$market))
+         updateTextInput(session, 'edit_headquartersInput', value = unique(DT$headquarters))
+         updateNumericInput(session, 'edit_foundedYearInput', value = unique(DT$founded_year))
+         updateSelectInput(session, 'edit_statusInput', choices = unique(DT$status))
+         
+      })
+      
       observeEvent(input$edit_bck_addCompanyBtn, {
          # Retrieve values from inputs
          company_id = input$edit_companySymbolInput
@@ -511,15 +521,15 @@ server_app = function(input, output, session) {
          status = input$edit_statusInput
          
          # Insert a new row into the my_companies table
-         dbExecute(con, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
-                   list(company_id, company_name, industry, market, headquarters, founded_year, status))
+         dbExecute(connn, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
+                   list(company_name, industry, market, headquarters, founded_year, status, company_id))
          
          removeModal()
       })   
    
    
    output$texto2 = renderTable({
-      input$bck_select_list
+      dt_con_companies_edit()
    })
    
    output$texto3 = renderTable({
