@@ -52,7 +52,7 @@ fluidRow( # big fluid row start
                        value_box(
                           title = "Current",
                           value = textOutput("calc_current_value"),
-                          showcase = bs_icon("calculator", size = '1.125em'),
+                          showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 3vh'),
                           showcase_layout = "top right",
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#4C6279"),
                           class = "border"
@@ -60,7 +60,7 @@ fluidRow( # big fluid row start
                        value_box(
                           title = "Maximum",
                           value = textOutput("calc_max_value"),
-                          showcase = bs_icon("graph-up", size = '1.125em'),
+                          showcase = span(bs_icon("graph-up", size = '1em'), style = 'padding-top: 3vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#6EBDAB"),
                           showcase_layout = "top right",
                           class = "border"
@@ -68,7 +68,7 @@ fluidRow( # big fluid row start
                        value_box(
                           title = "Minimum",
                           value = textOutput("calc_min_value"),
-                          showcase = bs_icon("dash-circle", size = '1.125em'),
+                          showcase = span(bs_icon("dash-circle", size = '1em'), style = 'padding-top: 3vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#F29191"),
                           showcase_layout = "top right",
                           class = "border"
@@ -76,7 +76,7 @@ fluidRow( # big fluid row start
                        value_box(
                           title = "Mean",
                           value = textOutput("calc_mean_value"),
-                          showcase = bs_icon("calculator", size = '1.125em'),
+                          showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 3vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#75A5B7"),
                           showcase_layout = "top right",
                           class = "border"

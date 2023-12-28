@@ -1,8 +1,6 @@
 
 # Tickers historical API ========================
 
-
-
 fetch_tickers = function(TICKERS, INIT_DATE = '2021-01-01', END_DATE = Sys.Date()) {
    
    tryCatch({
@@ -12,14 +10,18 @@ fetch_tickers = function(TICKERS, INIT_DATE = '2021-01-01', END_DATE = Sys.Date(
                                    from = INIT_DATE,
                                    to   = END_DATE)
       
-      data.table::setnames(sym_data, c("ticker", "index", "open", "high", "low", "close", "volume", "adjusted"))
+      if(!is.null(sym_data)) {
+         data.table::setnames(sym_data, c("ticker", "index", "open", "high", "low", "close", "volume", "adjusted"))
+         data.table::setDT(sym_data)
+         }
       
    }, error = function(e) {
-      cat("Error for $TICKERS", ":", conditionMessage(e), "\n")
+
+      sym_data = data.table(ticker = NA_character_, index = NA_integer_, open = NA_complex_, high = NA_complex_,
+                            low = NA_complex_, close = NA_complex_, volume = NA_complex_, adjusted = NA_complex_)
+      
       return(NULL)
    })
-   
-   data.table::setDT(sym_data)
    
    return(sym_data)
    
@@ -35,6 +37,14 @@ calc_agg = function(DT) {
    
    dtw = DT[, c('ticker', 'index', 'adjusted')]
    dtw = data.table::dcast(dtw, index ~ ticker, value.var = 'adjusted')
+
+   kc_cols = setdiff(names(dtw), "index")
+   kc_cols_na = paste0(kc_cols, '_NA')
+   
+   dtw[, (paste0(kc_cols, '_NA')) := lapply(.SD, function(x) fifelse(is.na(x), 0, 1)), .SDcols = kc_cols]
+   
+   dtw[, (kc_cols) := lapply(.SD, nafill, type = "locf"), .SDcols = kc_cols]
+   dtw[, (kc_cols) := lapply(.SD, nafill, type = "nocb"), .SDcols = kc_cols]   
    
    xts_dtw = xts::as.xts(dtw)
    
@@ -52,8 +62,10 @@ calc_agg = function(DT) {
    xts_dtw_wk_ls_weeks52 = stats::window(xts_dtw_wk, start = ls_weeks52)
    xts_dtw_wk_ls_ytd = stats::window(xts_dtw_wk, start = ls_ytd)
    
-   LISTA = list(xts_dtw_wk, xts_dtw_wk_ls_week, xts_dtw_wk_ls_month, xts_dtw_wk_ls_quarter, xts_dtw_wk_ls_weeks52, xts_dtw_wk_ls_ytd)
-   names(LISTA) = c('price', 'last_week', 'last_month', 'last_quarter', 'last_year', 'ytd')
+   list_names = list(kc_cols, kc_cols_na)
+   
+   LISTA = list(xts_dtw_wk, xts_dtw_wk_ls_week, xts_dtw_wk_ls_month, xts_dtw_wk_ls_quarter, xts_dtw_wk_ls_weeks52, xts_dtw_wk_ls_ytd, list_names)
+   names(LISTA) = c('price', 'last_week', 'last_month', 'last_quarter', 'last_year', 'ytd', 'list_names')
    
    return(LISTA)
    
