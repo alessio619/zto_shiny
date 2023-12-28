@@ -260,6 +260,15 @@ bck_statusInput =
 
 ## Edit / Remove company --------------------------------------------------------
 
+### Refesh list
+in_bck_refresh_backend =
+   actionButton(
+      inputId = "bck_refresh_backend",
+      label = "Refesh",
+      class = 'btn-secondary',
+      icon = shiny::icon("reload"),
+      width = '100%')
+
 ### Select list origin
 in_bck_select_list =
    selectInput(

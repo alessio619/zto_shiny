@@ -378,10 +378,19 @@ server_app = function(input, output, session) {
    
    # 00_backend --------------------------------------------------------
    
-   ### Update selector
-   observe({
+   ### Load DB
+   dt_con_companies = eventReactive(input$bck_refresh_backend, {
       
-      x = dt_connn$company_id
+      dt_con = data.table::data.table(dbReadTable(connn, "my_companies"))
+      return(dt_con)
+      
+   })
+   
+   
+   ### Update selector
+   observeEvent(input$bck_refresh_backend, {
+      
+      x = dt_con_companies()$company_id
       if (is.null(x))
          x = character(0)
       updateSelectInput(session, 'bck_select_list',
@@ -390,7 +399,7 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Manua add company --------------------------------------------------------
+   ### Manual add company --------------------------------------------------------
    observeEvent(input$bck_add_company, {
       showModal(
          modalDialog(
@@ -443,6 +452,15 @@ server_app = function(input, output, session) {
       trial_add()
    })
    
+   output$texto3 = renderTable({
+      dt_con_companies()
+   })
+   
+   
+   
+   
+   
+   
    data = data.frame(
       ID = 1:1000,
       SKU_Number = paste0("SKU ", 1:1000),
@@ -480,6 +498,7 @@ server_app = function(input, output, session) {
    
    output$texto = renderTable({
 
+      
       dt_connn
       
    })

@@ -6,6 +6,8 @@ page_backend =  fluidPage(
    useWaiter(),
    reactable_extras_dependency(),
    tableOutput('texto2'),
+
+   tableOutput('texto3'),
    
    fluidRow( # big fluid row start
       
@@ -16,6 +18,7 @@ page_backend =  fluidPage(
                 accordion_panel(
                    title = h2('Database', style = 'color: #4C6279'),
                    'In this section...',
+                   in_bck_refresh_backend,
                    value = 'bck_01'
                 ) ### accordion panel
              ), ### accordion
