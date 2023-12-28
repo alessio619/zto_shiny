@@ -106,6 +106,7 @@ server_app = function(input, output, session) {
       xts = xtw[input$exp_dataAgg][[1]]
       xts_names = xtw['list_names'][[1]][[1]]
       xts_names_na = xtw['list_names'][[1]][[2]]
+      dtw = as.data.table(xts)
       
       ### roll mean
       if(input$exp_dataCalc == 'calc_price') {
@@ -123,6 +124,7 @@ server_app = function(input, output, session) {
       if(input$exp_dataCalc == 'calc_ret') {
          xtss = PerformanceAnalytics::Return.calculate(xts, method = 'log')
          dts = as.data.table(xtss)
+         dts = cbind(dts[, .(index)], dts[, ..xts_names], dtw[, ..xts_names_na])
          dts[, (xts_names_na) := lapply(.SD, function(x) fifelse(x == 0, NA_integer_, 1)), .SDcols = xts_names_na]
          prefixes = unique(gsub("_NA$", "", names(dts)[-1]))
          for (prefix in prefixes) {
@@ -138,12 +140,7 @@ server_app = function(input, output, session) {
          xtss = apply(xtw_ret, 2, cumsum)
          indexx = zoo::index(xtss)
          dts = as.data.table(xtss)
-         dts[, (xts_names_na) := lapply(.SD, function(x) fifelse(x == 0, NA_integer_, 1)), .SDcols = xts_names_na]
-         prefixes = unique(gsub("_NA$", "", names(dts)[-1]))
-         for (prefix in prefixes) {
-            dts[, (prefix) := get(prefix) * get(paste0(prefix, "_NA"))]
-            dts[, (paste0(prefix, "_NA")) := NULL]
-         }
+         dts[, (xts_names_na) := NULL]
          dts$index = indexx
          dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
          dts[, value := round(value, digits = 2)]
