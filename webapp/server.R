@@ -57,7 +57,7 @@ server_app = function(input, output, session) {
       req(tickers_full_list())
       
       ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
-      full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
+      full_list = c(ita_list, strsplit(toupper(toupper(input$exp_insert_ticker)), ";")[[1]])
       
       if (is.null(full_list))
          full_list = character(0)
@@ -74,7 +74,7 @@ server_app = function(input, output, session) {
 
       req(tickers_full_list())
       ita_list = tickers_full_list()[name_company %in% input$exp_select_ticker]$code_ticker
-      full_list = c(ita_list, strsplit(input$exp_insert_ticker, ";")[[1]])
+      full_list = c(ita_list, strsplit(toupper(input$exp_insert_ticker), ";")[[1]])
       return(full_list)
 
    })
@@ -196,7 +196,8 @@ server_app = function(input, output, session) {
              hcaes(x = index, y = value, group = ticker)) |> 
          hc_xAxis(title = '', lineWidth = 0) |> 
          hc_yAxis(title = '')  |> 
-         hc_legend(align = "left", verticalAlign = "top", layout = "horizontal")
+         hc_legend(align = "left", verticalAlign = "top", layout = "horizontal") |> 
+         hc_tooltip(table = TRUE)
     
   })
    
@@ -329,7 +330,8 @@ server_app = function(input, output, session) {
          if(input$exp_finType == 'table_type_cs') {DTW = copy(DTS[['cs_y']])}
 
       } else if(input$exp_finTime == 'table_quarterly') {
-
+         
+         if(input$exp_finType == 'table_type_bs') {DTW = data.table(EMPTY = 'NO DATA')}
          if(input$exp_finType == 'table_type_in') {DTW = copy(DTS[['in_q']])}
          if(input$exp_finType == 'table_type_cs') {DTW = copy(DTS[['cs_q']])}
 
