@@ -50,8 +50,8 @@ navbarPage(
    )), 
    
    # tags$style(HTML(
-   #    '.bslib-sidebar-layout .sidebar {background-color: #dddddd; border-left-color: rgb(221, 221, 221);}'
-   # )), 
+   #    '.bslib-value-box .value-box-title {font-family: Inter important!;}'
+   # )),
    
    tags$style(HTML(
       '.form-check, .shiny-input-container .checkbox, .shiny-input-container .radio {color: #4C6279;}'
