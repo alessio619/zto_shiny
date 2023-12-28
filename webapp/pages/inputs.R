@@ -290,7 +290,7 @@ in_bck_edit_company =
 
 in_bck_delete_company =
    actionButton(
-      inputId = "bck_edit_company",
+      inputId = "bck_delete_company",
       label = "Delete company",
       class = 'btn-danger',
       icon = shiny::icon("xmark"),

@@ -95,6 +95,13 @@ sample_data = data.frame(
 dbWriteTable(con, "my_companies", sample_data, append = TRUE)
 
 
+# Delete table's record ------------------
+
+company_id = '1'
+
+delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", company_id, "');")
+dbExecute(con, delete_queries)
+
 # Read tables -------------------------
 
 dtw = data.table::data.table(dbReadTable(con, "my_companies"))

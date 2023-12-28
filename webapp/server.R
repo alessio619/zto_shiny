@@ -399,7 +399,7 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Manual add company --------------------------------------------------------
+   ### Manual Add company --------------------------------------------------------
    observeEvent(input$bck_add_company, {
       showModal(
          modalDialog(
@@ -434,6 +434,7 @@ server_app = function(input, output, session) {
       removeModal()
    })
    
+   
    trial_add = eventReactive(input$bck_addCompanyBtn, {
       
       company_id = input$companySymbolInput
@@ -448,8 +449,33 @@ server_app = function(input, output, session) {
    
       })
    
+   ## Delete company ----------------
+   
+   observeEvent(input$bck_delete_company, {
+      
+      showModal(
+         modalDialog(
+            title = 'Delete Permanently?',
+            'All the information regarding this company will be deleted permanently.',
+            footer = tagList(
+               actionButton("bck_delete", "Delete", class = 'btn-danger'), 
+               modalButton("Dismiss")
+            )
+         ))
+      })
+      
+      observeEvent(input$bck_delete, {
+      
+         delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
+         dbExecute(connn, delete_queries)
+         removeModal()
+   })
+   
+   
+   
+   
    output$texto2 = renderTable({
-      trial_add()
+      input$bck_select_list
    })
    
    output$texto3 = renderTable({
