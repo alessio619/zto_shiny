@@ -13,21 +13,15 @@ server_app = function(input, output, session) {
          engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
       }
       
+      if (input$exp_select_list == 'list_db') {
+         engm_equities_lista = data.table::data.table(dbReadTable(connn, "my_companies"))
+         engm_equities_lista = engm_equities_lista[, .(name_company =  company_name, code_ticker = company_id)]
+      }      
+      
       if (input$exp_select_list == 'list_upload') {
          if (!is.null(input$exp_upload_tickerlist$datapath)) {
             engm_equities_lista = fread(input$exp_upload_tickerlist$datapath)
          } else {
-            showNotification("Attention: No data uploaded", type = "error")
-         }
-      }
-      
-      if (input$exp_select_list == 'list_both') {
-         if (!is.null(input$exp_upload_tickerlist$datapath)) {
-            engm_equities_list_1 = fread(input$exp_upload_tickerlist$datapath)
-            engm_equities_list_2 = setDT(read.csv2(file.path('data', 'Euronext_Equities_2023-12-06.csv')))
-            engm_equities_lista = rbind(engm_equities_list_1, engm_equities_list_2, fill = TRUE)
-         } else {
-            engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
             showNotification("Attention: No data uploaded", type = "error")
          }
       }

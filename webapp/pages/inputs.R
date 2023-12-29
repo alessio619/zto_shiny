@@ -11,7 +11,7 @@ in_exp_select_list =
    radioGroupButtons(
       inputId = "exp_select_list",
       label = span('List origin', style = 'color: #75A5B7; font-weight: bold;'), 
-      choices = c('Base' = 'list_base', 'Upload' = 'list_upload', 'Both' = 'list_both'),
+      choices = c('Base' = 'list_base', 'DB' = 'list_db', 'Upload' = 'list_upload'),
       selected = 'list_base',
       justified = TRUE,
       width = '100%',
