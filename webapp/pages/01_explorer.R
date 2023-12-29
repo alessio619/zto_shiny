@@ -5,7 +5,7 @@ page_explorer =  fluidPage(
    
    useWaiter(),
    
-   # fluidRow(tableOutput('texto')),
+   fluidRow(textOutput('texto')),
    
 fluidRow( # big fluid row start
    

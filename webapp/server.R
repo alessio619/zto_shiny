@@ -2,6 +2,14 @@
 # Inputs ================================================================================
 
 server_app = function(input, output, session) {
+   
+   dt_companies = reactive({
+      
+      dt_con = data.table::data.table(dbReadTable(connn, "my_companies"))
+      return(dt_con)
+      
+   })
+   
 
    ## 01_explorer --------------------------------------------------------
    
@@ -14,7 +22,7 @@ server_app = function(input, output, session) {
       }
       
       if (input$exp_select_list == 'list_db') {
-         engm_equities_lista = data.table::data.table(dbReadTable(connn, "my_companies"))
+         engm_equities_lista = 
          engm_equities_lista = engm_equities_lista[, .(name_company =  company_name, code_ticker = company_id)]
       }      
       
@@ -382,26 +390,40 @@ server_app = function(input, output, session) {
       updateTextInput(session, 'exp_companySymbolInput', value = unique(input$exp_select_AddCompany))
    })   
    
+   
    observeEvent(input$exp_add_company, {
       
-      showModal(
-         modalDialog(
-            id = "exp_addCompanyModal",
-            title = "Add Company",
-            exp_companySymbolInput,
-            exp_companyNameInput,
-            exp_industryInput,
-            exp_marketInput,
-            exp_headquartersInput,
-            exp_foundedYearInput,
-            exp_statusInput,
-            in_exp_data2add,
-            footer = tagList(
-               in_exp_add_company_modal,
-               modalButton("Dismiss")
+      in_companies = dt_companies()[company_id %in% input$exp_select_AddCompany]$company_id
+      
+      if(identical(in_companies, character(0))) {
+         
+         showModal(
+            modalDialog(
+               id = "exp_addCompanyModal",
+               title = "Add Company",
+               exp_companySymbolInput,
+               exp_companyNameInput,
+               exp_industryInput,
+               exp_marketInput,
+               exp_headquartersInput,
+               exp_foundedYearInput,
+               exp_statusInput,
+               in_exp_data2add,
+               footer = tagList(
+                  in_exp_add_company_modal,
+                  modalButton("Dismiss")
+               )
             )
          )
-      )
+         
+      } else if(input$exp_select_AddCompany == in_companies) {
+         
+         showModal(
+            modalDialog(title = "Attention!", 'Duplication is not allowed. $TICKER already in DB.',
+                        easyClose = TRUE)
+         )
+         
+      } 
    })
    
    observeEvent(input$exp_addCompanyBtn, {
@@ -590,10 +612,6 @@ server_app = function(input, output, session) {
       })   
    
    
-   output$texto2 = renderTable({
-      dt_con_companies_edit()
-   })
-   
    output$texto3 = renderTable({
       dt_con_companies()
    })
@@ -638,10 +656,11 @@ server_app = function(input, output, session) {
    
    ## END --------------
    
-   output$texto = renderTable({
+   output$texto = renderPrint({
 
+      in_companies = dt_companies()[company_id %in% input$exp_select_AddCompany]$company_id
       
-      dt_connn
+      identical(in_companies, character(0))
       
    })
   
