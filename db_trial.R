@@ -25,75 +25,51 @@ dbExecute(con, "CREATE INDEX idx_company_id ON my_companies(company_id)")
 
 # Create the "historical_price" table
 dbExecute(con, "CREATE TABLE historical_price (
-  company_id TEXT,
   date DATE,
+  company_id INTEGER,
   closing_price REAL,
   volume INTEGER,
-  PRIMARY KEY (company_id, date),
+  PRIMARY KEY (date, company_id),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )")
 
 # Create the "income_statement" table
 dbExecute(con, "CREATE TABLE income_statement (
-  company_id TEXT,
   date DATE,
+  company_id INTEGER,
   revenue REAL,
   expenses REAL,
   net_income REAL,
-  PRIMARY KEY (company_id, date),
+  PRIMARY KEY (date, company_id),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )")
 
 # Create the "cashflow_statement" table
 dbExecute(con, "CREATE TABLE cashflow_statement (
-  company_id TEXT,
   date DATE,
+  company_id INTEGER,
   operating_cashflow REAL,
   investing_cashflow REAL,
   financing_cashflow REAL,
-  PRIMARY KEY (company_id, date),
+  PRIMARY KEY (date, company_id),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )")
 
 # Create the "balance_sheet" table
 dbExecute(con, "CREATE TABLE balance_sheet (
-  company_id TEXT,
   date DATE,
+  company_id INTEGER,
   assets REAL,
   liabilities REAL,
   equity REAL,
-  PRIMARY KEY (company_id, date),
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)")
-
-# Create the "financial_ratios" table
-dbExecute(con, "CREATE TABLE financial_ratios (
-  company_id TEXT,
-  date DATE,
-  ratio_1 REAL,
-  ratio_2 REAL,
-  PRIMARY KEY (company_id, date),
+  PRIMARY KEY (date, company_id),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )")
 
 # Create the "my_positions" table
 dbExecute(con, "CREATE TABLE my_positions (
   position_id INTEGER PRIMARY KEY,
-  company_id TEXT,
-  date DATE,
-  purchase_date DATE,
-  purchase_price REAL,
-  sell_date DATE,
-  sell_price REAL,  
-  shares INTEGER,
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)")
-
-# Risk metrics
-dbExecute(con, "CREATE TABLE portfolio_metrics (
-  position_id INTEGER PRIMARY KEY,
-  company_id TEXT,
-  date DATE,
+  company_id INTEGER,
   purchase_date DATE,
   purchase_price REAL,
   sell_date DATE,
@@ -117,16 +93,6 @@ sample_data = data.frame(
 
 
 dbWriteTable(con, "my_companies", sample_data, append = TRUE)
-
-
-# Delete table's record ------------------
-
-company_id = '1'
-
-delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", company_id, "');")
-dbExecute(con, delete_queries)
-
-# dbExecute(connn, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
 
 
 # Read tables -------------------------

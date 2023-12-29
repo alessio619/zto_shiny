@@ -224,7 +224,7 @@ in_exp_upd_company_modal =
       label = "Update data",
       class = 'btn-warning',
       width = '100%',
-      icon = shiny::icon("plus"))
+      icon = shiny::icon("pen"))
 
 
 exp_companySymbolInput =

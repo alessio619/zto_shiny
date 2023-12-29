@@ -393,6 +393,7 @@ server_app = function(input, output, session) {
    
    observeEvent(input$exp_add_company, {
       
+      ## for later
       in_companies = dt_companies()[company_id %in% input$exp_select_AddCompany]$company_id
       
       if(identical(in_companies, character(0))) {
@@ -442,16 +443,20 @@ server_app = function(input, output, session) {
       
       if(input$exp_data2add == 'exp_add_data_market') {
          
-         # dbWriteTable(connn, "my_companies", dt_add_data, append = TRUE)
-      }
-      
-      if(input$exp_data2add == 'exp_add_data_financial') {
+         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
          
-      }
+         dbExecute(connn, "INSERT INTO historical_price (company_id, date, closing_price, volume) VALUES (?, ?, ?, ?)",
+                   list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
+         }
       
-      if(input$exp_data2add == 'exp_add_data_both') {
-         
-      }
+      # if(input$exp_data2add == 'exp_add_data_financial') {
+      #    
+      # }
+      # 
+      # if(input$exp_data2add == 'exp_add_data_both') {
+      #    
+      # }
       
       removeModal()
    })
@@ -485,6 +490,7 @@ server_app = function(input, output, session) {
    
    ### Manual Add company --------------------------------------------------------
    observeEvent(input$bck_add_company, {
+      
       showModal(
          modalDialog(
             id = "bck_addCompanyModal",
@@ -617,10 +623,6 @@ server_app = function(input, output, session) {
    })
    
    
-   
-   
-   
-   
    data = data.frame(
       ID = 1:1000,
       SKU_Number = paste0("SKU ", 1:1000),
@@ -653,14 +655,12 @@ server_app = function(input, output, session) {
       ))
    })
    
-   
    ## END --------------
    
-   output$texto = renderPrint({
+   output$texto = renderTable({
 
-      in_companies = dt_companies()[company_id %in% input$exp_select_AddCompany]$company_id
-      
-      identical(in_companies, character(0))
+      dtw = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+      dtw[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
       
    })
   
