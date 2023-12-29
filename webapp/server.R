@@ -389,6 +389,7 @@ server_app = function(input, output, session) {
    })   
    
    observeEvent(input$exp_add_company, {
+      
       showModal(
          modalDialog(
             id = "exp_addCompanyModal",
@@ -400,7 +401,7 @@ server_app = function(input, output, session) {
             exp_headquartersInput,
             exp_foundedYearInput,
             exp_statusInput,
-            
+            in_exp_data2add,
             footer = tagList(
                in_exp_add_company_modal,
                modalButton("Dismiss")
@@ -409,19 +410,32 @@ server_app = function(input, output, session) {
       )
    })
    
-   observeEvent(input$bck_addCompanyBtn, {
+   observeEvent(input$exp_addCompanyBtn, {
       # Retrieve values from inputs
-      company_id = input$companySymbolInput
-      company_name = input$companyNameInput
-      industry = input$industryInput
-      market = input$marketInput
-      headquarters = input$headquartersInput
-      founded_year = input$foundedYearInput
-      status = input$statusInput
+      company_id = input$exp_companySymbolInput
+      company_name = input$exp_companyNameInput
+      industry = input$exp_industryInput
+      market = input$exp_marketInput
+      headquarters = input$exp_headquartersInput
+      founded_year = input$exp_foundedYearInput
+      status = input$exp_statusInput
       
       # Insert a new row into the my_companies table
       dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 list(company_id, company_name, industry, market, headquarters, founded_year, status))
+      
+      if(input$exp_data2add == 'exp_add_data_market') {
+         
+         # dbWriteTable(connn, "my_companies", dt_add_data, append = TRUE)
+      }
+      
+      if(input$exp_data2add == 'exp_add_data_financial') {
+         
+      }
+      
+      if(input$exp_data2add == 'exp_add_data_both') {
+         
+      }
       
       removeModal()
    })

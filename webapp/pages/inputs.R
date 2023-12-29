@@ -218,6 +218,15 @@ in_exp_add_company_modal =
       class = 'btn-success',
       icon = shiny::icon("plus"))
 
+in_exp_upd_company_modal = 
+   actionButton(
+      inputId = "exp_updateCompanyBtn",
+      label = "Update data",
+      class = 'btn-warning',
+      width = '100%',
+      icon = shiny::icon("plus"))
+
+
 exp_companySymbolInput =
    textInput(
       inputId = "exp_companySymbolInput", 
@@ -259,6 +268,14 @@ exp_statusInput =
       label = span('Status', style = 'color: #4C6279; font-weight: bold;'), choices = c("Active", "Inactive", "Pending"),
       width = '100%')
 
+in_exp_data2add =
+   radioButtons(
+      inputId = "exp_data2add",
+      label = span('Data to Add', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'Both' = 'exp_add_data_all'),
+      selected = 'exp_add_data_market',
+      width = '100%'
+   )
 
 
 ## 00_Backend --------------------------------------------------------

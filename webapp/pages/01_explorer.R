@@ -26,20 +26,30 @@ fluidRow( # big fluid row start
          ## Second accordion --------------------------------------------------
          accordion(
             accordion_panel(
-               title = h5("Actions", style = 'font-weight: bold; color: #4C6279'),
+               title = h5("Retrieve", style = 'font-weight: bold; color: #4C6279'),
                in_exp_button_fetchTickers,
                br(), br(),
                in_exp_button_fetchFinancials,
-               hr(),
+               value = 'sth3'
+            )),
+         
+         br(),
+         
+         ## Third accordion --------------------------------------------------
+         accordion(
+            accordion_panel(
+               title = h5("Record", style = 'font-weight: bold; color: #4C6279'),
                in_exp_select_AddCompany,
                in_exp_add_company,
-               value = 'sth3'
+               br(),br(),
+               in_exp_upd_company_modal,
+               value = 'sth4'
             )
          ), ### accordion           
 
          br(),
          
-         ## Third accordion --------------------------------------------------
+         ## Fourth accordion --------------------------------------------------
          accordion(
             accordion_panel(
                title = h5('List of companies', style = 'color: #4C6279'),
