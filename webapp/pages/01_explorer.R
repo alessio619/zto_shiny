@@ -12,31 +12,42 @@ fluidRow( # big fluid row start
      column(width = 3,
             
          ## First accordion --------------------------------------------------
-            accordion(
-               accordion_panel(
-                  title = h2('Explore', style = 'color: #4C6279'),
-                  in_exp_select_list,
-                  in_exp_upload_ticker_list,
-                  value = 'sth1'
-               ) ### accordion panel
-         ), ### accordion
+         accordion(
+            accordion_panel(
+               title = h2("Explore", style = 'font-weight: bold; color: #4C6279'),
+               in_exp_select_ticker,
+               in_exp_insert_ticker,             
+               in_exp_dateRange,
+               value = 'sth2') ### accordion panel
+         ), ### accordion      
          
          br(),
          
          ## Second accordion --------------------------------------------------
          accordion(
             accordion_panel(
-               title = h5("Search companies", style = 'font-weight: bold; color: #4C6279'),
-               in_exp_select_ticker,
-               in_exp_insert_ticker,             
-               in_exp_dateRange,
-               value = 'sth2') ### accordion panel
-         ), ### accordion
+               title = h5("Actions", style = 'font-weight: bold; color: #4C6279'),
+               in_exp_button_fetchTickers,
+               br(), br(),
+               in_exp_button_fetchFinancials,
+               hr(),
+               in_exp_select_AddCompany,
+               in_exp_add_company,
+               value = 'sth3'
+            )
+         ), ### accordion           
+
          br(),
-         card(style = 'border-color: rgb(221, 221, 221);',
-            in_exp_button_fetchTickers,
-            in_exp_button_fetchFinancials
-         ) ### card
+         
+         ## Third accordion --------------------------------------------------
+         accordion(
+            accordion_panel(
+               title = h5('List of companies', style = 'color: #4C6279'),
+               in_exp_select_list,
+               in_exp_upload_ticker_list,
+               value = 'sth1'
+            ) ### accordion panel
+         ), ### accordion
      ),         
      
      

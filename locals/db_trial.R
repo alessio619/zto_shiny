@@ -102,6 +102,9 @@ company_id = '1'
 delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", company_id, "');")
 dbExecute(con, delete_queries)
 
+# dbExecute(connn, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
+
+
 # Read tables -------------------------
 
 dtw = data.table::data.table(dbReadTable(con, "my_companies"))

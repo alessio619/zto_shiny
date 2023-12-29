@@ -38,18 +38,14 @@ server_app = function(input, output, session) {
    
    ### Update selector from the accordion
    observe({
-
       req(tickers_full_list())
-
       x = tickers_full_list()$name_company
       if (is.null(x))
          x = character(0)
       updateSelectInput(session, 'exp_select_ticker',
                         label = NULL,
-                        choices = unique(x)
-      )
+                        choices = unique(x))
    })
-   
    
    ### Update selector from the table
    observe({
@@ -79,8 +75,19 @@ server_app = function(input, output, session) {
 
    })
    
+   ### Update selector from the accordion
+   observe({
+      req(ticker_list())
+      x = ticker_list()
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_AddCompany',
+                        label = NULL,
+                        choices = unique(x))
+   })   
    
-   ### Fetch market data ---------------------------------------------------------
+   
+   ### Fetch Market data ---------------------------------------------------------
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
@@ -99,7 +106,7 @@ server_app = function(input, output, session) {
       
       req(dt_fetchedTickers())
       
-      dtw = copy(dt_fetchedTickers())
+      dtw = dt_fetchedTickers()
       
       xtw = calc_agg(DT = dtw)
       
@@ -271,7 +278,7 @@ server_app = function(input, output, session) {
    
    
    
-   ### Fetch financial data ---------------------------------------------------------
+   ### Fetch Financial data ---------------------------------------------------------
    
    w = Waiter$new(
       html = spin_3(),
@@ -308,7 +315,8 @@ server_app = function(input, output, session) {
          x = character(0)
       updateSelectInput(session, 'exp_select_tickerTable',
                         label = NULL,
-                        choices = unique(x)
+                        choices = unique(x),
+                        selected = head(x, 1)
       )
    })   
    
@@ -371,6 +379,52 @@ server_app = function(input, output, session) {
          write.csv(dt_table_tickersFinancials(), file)
       }
    ) 
+   
+   
+   ### Follow / Add company --------------------------------------------------------
+   
+   observeEvent(input$exp_add_company, {
+      x = ticker_list()
+      updateTextInput(session, 'exp_companySymbolInput', value = unique(input$exp_select_AddCompany))
+   })   
+   
+   observeEvent(input$exp_add_company, {
+      showModal(
+         modalDialog(
+            id = "exp_addCompanyModal",
+            title = "Add Company",
+            exp_companySymbolInput,
+            exp_companyNameInput,
+            exp_industryInput,
+            exp_marketInput,
+            exp_headquartersInput,
+            exp_foundedYearInput,
+            exp_statusInput,
+            
+            footer = tagList(
+               in_exp_add_company_modal,
+               modalButton("Dismiss")
+            )
+         )
+      )
+   })
+   
+   observeEvent(input$bck_addCompanyBtn, {
+      # Retrieve values from inputs
+      company_id = input$companySymbolInput
+      company_name = input$companyNameInput
+      industry = input$industryInput
+      market = input$marketInput
+      headquarters = input$headquartersInput
+      founded_year = input$foundedYearInput
+      status = input$statusInput
+      
+      # Insert a new row into the my_companies table
+      dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                list(company_id, company_name, industry, market, headquarters, founded_year, status))
+      
+      removeModal()
+   })
    
    
    # 02_analyze --------------------------------------------------------

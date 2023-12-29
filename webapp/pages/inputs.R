@@ -146,7 +146,7 @@ in_exp_button_fetchTickers =
    actionButton(
       inputId = 'exp_button_fetchTickers',
       label = 'Fetch price',
-      class = 'btn-success',
+      class = 'btn-secondary',
       icon = shiny::icon("chart-line"),
       width = '100%'
    )
@@ -192,7 +192,72 @@ in_exp_button_fetchFinancials =
    )
 
 
+in_exp_add_company = 
+   actionButton(
+      inputId = "exp_add_company",
+      label = "Add company",
+      class = 'btn-success',
+      icon = shiny::icon("plus"),
+      width = '100%')
 
+
+in_exp_select_AddCompany = 
+   selectInput(
+      inputId = 'exp_select_AddCompany',
+      label = NULL,
+      choices = NULL,
+      width = '100%',
+      multiple = FALSE
+   )
+   
+
+in_exp_add_company_modal = 
+   actionButton(
+      inputId = "exp_addCompanyBtn",
+      label = "Add",
+      class = 'btn-success',
+      icon = shiny::icon("plus"))
+
+exp_companySymbolInput =
+   textInput(
+      inputId = "exp_companySymbolInput", 
+      label = span('Company ID', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_companyNameInput =
+   textInput(
+      inputId = "exp_companyNameInput", 
+      label = span('Company Name', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_industryInput =
+   selectInput(
+      inputId = "exp_industryInput", 
+      label = span('Industry', style = 'color: #4C6279; font-weight: bold;'), choices = c("Technology", "Finance", "Other"),
+      width = '100%')
+
+exp_marketInput = 
+   selectInput(
+      inputId = "exp_marketInput", 
+      label = span('Market', style = 'color: #4C6279; font-weight: bold;'), choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE"),
+      width = '100%')
+
+exp_headquartersInput = 
+   textInput(
+      inputId = "exp_headquartersInput", 
+      label = span('Headquarters', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_foundedYearInput = 
+   numericInput("exp_foundedYearInput", 
+                label = span('Founded Year', style = 'color: #4C6279; font-weight: bold;'), value = 2000, min = 1800, max = 2023,
+                width = '100%')
+
+exp_statusInput = 
+   selectInput(
+      inputId = "exp_statusInput", 
+      label = span('Status', style = 'color: #4C6279; font-weight: bold;'), choices = c("Active", "Inactive", "Pending"),
+      width = '100%')
 
 
 
