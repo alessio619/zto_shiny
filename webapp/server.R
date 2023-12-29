@@ -547,8 +547,11 @@ server_app = function(input, output, session) {
       
       observeEvent(input$bck_delete, {
       
-         delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
-         dbExecute(connn, delete_queries)
+         delete_mycompanies = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
+         delete_historicaldata = paste0("DELETE FROM historical_price WHERE (company_id = '", input$bck_select_list, "');")
+         
+         dbExecute(connn, delete_mycompanies)
+         dbExecute(connn, delete_historicaldata)
          
          removeModal()
    })

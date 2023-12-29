@@ -132,6 +132,7 @@ dbExecute(con, delete_queries)
 # Read tables -------------------------
 
 dtw = data.table::data.table(dbReadTable(con, "my_companies"))
+dt_hp = data.table::data.table(dbReadTable(con, "historical_price"))
 
 print(dtw)
 
