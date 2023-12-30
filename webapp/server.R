@@ -22,7 +22,7 @@ server_app = function(input, output, session) {
       }
       
       if (input$exp_select_list == 'list_db') {
-         engm_equities_lista = 
+         engm_equities_lista = data.table::data.table(dbReadTable(connn, "my_companies"))
          engm_equities_lista = engm_equities_lista[, .(name_company =  company_name, code_ticker = company_id)]
       }      
       
@@ -438,15 +438,15 @@ server_app = function(input, output, session) {
       status = input$exp_statusInput
       
       # Insert a new row into the my_companies table
-      dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                list(company_id, company_name, industry, market, headquarters, founded_year, status))
+      dbExecute(connn, insert_newcompany_query,
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, 0, 0, 0, 0, 0, 0))
       
       if(input$exp_data2add == 'exp_add_data_market') {
          
          new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
          new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
          
-         dbExecute(connn, "INSERT INTO historical_price (company_id, date, closing_price, volume) VALUES (?, ?, ?, ?)",
+         dbExecute(connn, insert_newhistoricaldata_query,
                    list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
          }
       
@@ -457,6 +457,8 @@ server_app = function(input, output, session) {
       # if(input$exp_data2add == 'exp_add_data_both') {
       #    
       # }
+      
+      dbExecute(connn, update_availabledata_query)
       
       removeModal()
    })
@@ -522,8 +524,8 @@ server_app = function(input, output, session) {
       status = input$statusInput
       
       # Insert a new row into the my_companies table
-      dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                list(company_id, company_name, industry, market, headquarters, founded_year, status))
+      dbExecute(connn, insert_newcompany_query,
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, 0, 0, 0, 0, 0, 0))
 
       removeModal()
    })
@@ -614,7 +616,7 @@ server_app = function(input, output, session) {
          status = input$edit_statusInput
          
          # Insert a new row into the my_companies table
-         dbExecute(connn, "UPDATE my_companies SET company_name = ?, industry = ?, market = ?, headquarters = ?, founded_year = ?, status = ? WHERE company_id = ?",
+         dbExecute(connn, update_newcompany_query,
                    list(company_name, industry, market, headquarters, founded_year, status, company_id))
          
          removeModal()
@@ -626,45 +628,42 @@ server_app = function(input, output, session) {
    })
    
    
-   data = data.frame(
-      ID = 1:1000,
-      SKU_Number = paste0("SKU ", 1:1000),
-      Actions = rep(c("Updated", "Initialized"), times = 20),
-      Registered = as.Date("2023/1/1")
-   )
-   
    output$bck_table_trialdb = renderReactable({
-      # Create a reactable table with enhanced features
+      
+      dtw = dt_con_companies()
+      
       reactable(
-         data,
+         dtw,
          columns = list(
-            ID = colDef(name = "ID"),
-            SKU_Number = colDef(name = "SKU_Number"),
-            Actions = colDef(
-               name = "Actions",
-               cell = button_extra("button", class = "btn btn-primary")
-            ),
-            Registered = colDef(
-               cell = date_extra("Registered", class = "date-extra")
-            )
+            id = colDef(name = "#", minWidth = 20),
+            company_id = colDef(name = "TICKER/ID", minWidth = 50),
+            company_name = colDef(name = "Name"),
+            industry = colDef(name = "Industry"),
+            market = colDef(name = "Market"),
+            headquarters = colDef(name = "Headquarters"),
+            founded_year = colDef(name = "Founded"),
+            status = colDef(name = "Status"),
+            historical_data = colDef(name = "Historical", cell = button_extra("bck_button_table_hc", class = "btn btn-primary")),
+            # fd_available = colDef(name = "Financial", cell = button_extra("bck_button_table_fd", class = "btn btn-primary")),
+            ratios_data = colDef(name = "Ratios", cell = button_extra("bck_button_table_rt", class = "btn btn-primary"))
          )
       )
    })
    
-   observeEvent(input$button, {
+   observeEvent(input$bck_button_table_hc, {
       showModal(modalDialog(
          title = "Selected row data",
-         reactable(data[input$button$row, ])
+         reactable(data[input$bck_button_table_hc$row, ])
       ))
    })
    
    ## END --------------
    
-   output$texto = renderTable({
-
-      dtw = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
-      dtw[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
-      
-   })
+   # output$texto = renderTable({
+   # 
+   #    dtw = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+   #    dtw[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+   #    
+   # })
   
 }
