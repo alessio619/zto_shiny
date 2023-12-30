@@ -428,3 +428,12 @@ in_bck_delete_company =
       icon = shiny::icon("xmark"),
       width = '100%')
 
+
+## Actions from modals -------
+in_bck_button_downloadPrice = 
+   downloadButton(
+      outputId = 'bck_button_downloadPrice',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk")
+   )

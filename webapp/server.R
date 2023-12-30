@@ -477,6 +477,13 @@ server_app = function(input, output, session) {
       
    })
    
+   dt_con_historicaldata = eventReactive(input$bck_refresh_backend, {
+      
+      dt_con = data.table::data.table(dbReadTable(connn, "historical_price"))
+      return(dt_con)
+      
+   })   
+   
    
    ### Update selector
    observeEvent(input$bck_refresh_backend, {
@@ -623,14 +630,10 @@ server_app = function(input, output, session) {
       })   
    
    
-   output$texto3 = renderTable({
-      dt_con_companies()
-   })
-   
-   
    output$bck_table_trialdb = renderReactable({
       
       dtw = dt_con_companies()
+      dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
       
       reactable(
          dtw,
@@ -650,14 +653,53 @@ server_app = function(input, output, session) {
       )
    })
    
+   
+   dt_con_id = reactive({
+      
+      company_id = dt_con_companies()[input$bck_button_table_hc$row, ]$company_id
+      company_id
+      
+   })
+   
+   dt_con_historicaldata_table = reactive({
+      dt_con_historicaldata()[company_id == dt_con_id()]
+   })
+   
+   ### Download Company Historical Data
+   output$bck_button_downloadPrice = downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-price-', dt_con_id(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_historicaldata_table(), file)
+      }
+   )
+   
    observeEvent(input$bck_button_table_hc, {
       showModal(modalDialog(
          title = "Selected row data",
-         reactable(data[input$bck_button_table_hc$row, ])
+            
+         if(!is.null(dt_con_historicaldata_table())) {reactable(dt_con_historicaldata_table())},
+         
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
+            modalButton("Dismiss")
+         )
+         
       ))
    })
    
    ## END --------------
+   
+   
+   # output$texto3 = renderTable({
+   #    dt_con_historicaldata_table()
+   # })
    
    # output$texto = renderTable({
    # 

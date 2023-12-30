@@ -251,15 +251,12 @@ dbExecute(connn, update_availabledata_query)
 
 ## D. Read tables --------------------------------------------------------------------------
 
-dtw = data.table::data.table(dbReadTable(con, "my_companies"))
-dt_hp = data.table::data.table(dbReadTable(con, "historical_price"))
+dtw = data.table::data.table(dbReadTable(connn, "my_companies"))
+dt_hp = data.table::data.table(dbReadTable(connn, "historical_price"))
 
 print(dtw)
 
 
 # 4. Close the database connection --------------------------------------------------------------------------
 dbDisconnect(connn)
-
-
-
 
