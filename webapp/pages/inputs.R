@@ -437,3 +437,11 @@ in_bck_button_downloadPrice =
       class = 'btn-danger',
       icon = shiny::icon("floppy-disk")
    )
+
+in_bck_button_downloadFinancial = 
+   downloadButton(
+      outputId = 'bck_button_downloadFinancial',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk")
+   )

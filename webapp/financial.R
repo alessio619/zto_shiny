@@ -76,8 +76,6 @@ calc_agg = function(DT) {
 # Financial Statements  ----------------------------------------------------------------
 
 
-
-
 fetch_statements_annual = function(SYMBOL) {
    
    yahoo = reticulate::import("yahoofinancials")
@@ -243,5 +241,34 @@ get_statements = function(TICKERS) {
    }
    
    return(result_list)
+   
+}
+
+
+
+
+record_statements = function(DT, COMPANY) {
+   
+   DTT = copy(DT)
+   
+   DTS = DTT[[COMPANY]]
+   
+   DTW_bsy = copy(DTS[['bs_y']])
+   DTW_iny = copy(DTS[['in_y']])
+   DTW_csy = copy(DTS[['cs_y']])
+   DTW_inq = copy(DTS[['in_q']])
+   DTW_csq = copy(DTS[['cs_q']])
+   
+   dtw_bsy = melt(DTW_bsy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+   dtw_iny = melt(DTW_iny[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+   dtw_csy = melt(DTW_csy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+   dtw_inq = melt(DTW_inq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+   dtw_csq = melt(DTW_csq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+   
+   dtw = rbindlist(list(dtw_bsy, dtw_iny, dtw_csy, dtw_inq, dtw_csq))
+   
+   setnames(dtw, 'id', 'company_id')
+   
+   return(dtw)
    
 }

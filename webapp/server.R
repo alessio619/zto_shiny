@@ -449,16 +449,34 @@ server_app = function(input, output, session) {
          dbExecute(connn, insert_newhistoricaldata_query,
                    list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
          
-         dbExecute(connn, update_hsitorical_data_date_query,
+         dbExecute(connn, update_historical_data_date_query,
                    list(as.character(Sys.Date()), input$exp_select_AddCompany))
          }
       
-      # if(input$exp_data2add == 'exp_add_data_financial') {
-      #    
-      # }
+      if(input$exp_data2add == 'exp_add_data_financial') {
+
+         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         
+         dbExecute(connn, insert_newfinancialdata_query,
+                   list(dtw$company_id, rep(as.character(Sys.Date()), nrow(dtw)), dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+         
+         
+         dbExecute(connn, update_financial_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+      }
       # 
       # if(input$exp_data2add == 'exp_add_data_both') {
-      #    
+
+      # new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+      # new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+      # 
+      # dbExecute(connn, insert_newhistoricaldata_query,
+      #           list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+      # 
+      # dbExecute(connn, update_historical_data_date_query,
+      #           list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      
       # }
       
       dbExecute(connn, update_availabledata_query)
@@ -486,6 +504,13 @@ server_app = function(input, output, session) {
       return(dt_con)
       
    })   
+   
+   dt_con_financialdata = eventReactive(input$bck_refresh_backend, {
+      
+      dt_con = data.table::data.table(dbReadTable(connn, "financial_statements"))
+      return(dt_con)
+      
+   })      
    
    
    ### Update selector
@@ -637,8 +662,8 @@ server_app = function(input, output, session) {
       
       dtw = dt_con_companies()
       dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
-      dtw[, financial_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
-      dtw[, ratios_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
+      dtw[, financial_data := fifelse(financial_data == 1, 'View Data', 'No Data')]
+      dtw[, ratios_data := fifelse(ratios_data == 1, 'View Data', 'No Data')]
       dtw[, id := NULL]
       
       reactable(
@@ -668,23 +693,35 @@ server_app = function(input, output, session) {
    })
    
    
-   dt_con_id = reactive({
+   dt_con_id_hc = reactive({
       
       company_id = dt_con_companies()[input$bck_button_table_hc$row, ]$company_id
       company_id
       
    })
    
-   dt_con_historicaldata_table = reactive({
-      dt_con_historicaldata()[company_id == dt_con_id()]
+   dt_con_id_fd = reactive({
+      
+      company_id = dt_con_companies()[input$bck_button_table_fd$row, ]$company_id
+      company_id
+      
    })
+   
+   
+   dt_con_historicaldata_table = reactive({
+      dt_con_historicaldata()[company_id == dt_con_id_hc()]
+   })
+   
+   dt_con_financialdata_table = reactive({
+      dt_con_financialdata()[company_id == dt_con_id_fd()]
+   })   
    
    ### Download Company Historical Data
    output$bck_button_downloadPrice = downloadHandler(
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset-price-', dt_con_id(), ".csv")
+         paste0('dataset-price-', dt_con_id_hc(), ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -692,11 +729,31 @@ server_app = function(input, output, session) {
       }
    )
    
+   output$bck_button_downloadFinancial = downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-financials-', dt_con_id_fd(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_financialdata_table(), file)
+      }
+   )   
+   
    observeEvent(input$bck_button_table_hc, {
       showModal(modalDialog(
          title = "Selected row data",
             
-         if(!is.null(dt_con_historicaldata_table())) {reactable(dt_con_historicaldata_table())},
+         if(!is.null(dt_con_historicaldata_table())) {
+            reactable(dt_con_historicaldata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
          
          size = 'l',
          easyClose = TRUE,
@@ -707,6 +764,30 @@ server_app = function(input, output, session) {
          
       ))
    })
+   
+   observeEvent(input$bck_button_table_fd, {
+      showModal(modalDialog(
+         title = "Selected row data",
+         
+         if(!is.null(dt_con_historicaldata_table())) {
+            reactable(dt_con_financialdata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
+         
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
+            modalButton("Dismiss")
+         )
+         
+      ))
+   })   
    
    ## END --------------
    

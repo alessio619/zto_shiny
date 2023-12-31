@@ -4,8 +4,8 @@
 
 # Load the RSQLite package
 library(RSQLite)
+library(data.table)
 library(DBI)
-library(aws.s3)
 source(file.path('webapp', 'queries.R'))
 source(file.path('webapp', 'financial.R'))
 
@@ -52,97 +52,22 @@ create_historicalprice_query = "CREATE TABLE historical_price (
 dbExecute(connn, create_historicalprice_query)
 
 
-## Create the "income_statement" table --------------------------------------
-create_isy_query = "CREATE TABLE income_statement_y (
+## Create the "financial_statements" table --------------------------------------
+create_fs_query = "CREATE TABLE financial_statements (
   company_id TEXT,
   date DATE,
-  revenue REAL,
-  expenses REAL,
-  net_income REAL,
-  PRIMARY KEY (company_id, date),
+  stmt TEXT,
+  type TEXT,
+  voice TEXT,
+  time TEXT,
+  value REAL,
+  PRIMARY KEY (company_id, date, time, voice),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )"
 
-create_isq_query = "CREATE TABLE income_statement_q (
-  company_id TEXT,
-  date DATE,
-  revenue REAL,
-  expenses REAL,
-  net_income REAL,
-  PRIMARY KEY (company_id, date),
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)"
 
-dbExecute(connn, create_isy_query)
+dbExecute(connn, create_fs_query)
 
-dbExecute(connn, create_isq_query)
-
-
-## Create the "cashflow_statement" table --------------------------------------
-create_csy_query = "CREATE TABLE cashflow_statement_y (
-  company_id TEXT,
-  date DATE,
-  operating_cashflow REAL,
-  investing_cashflow REAL,
-  financing_cashflow REAL,
-  PRIMARY KEY (company_id, date),
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)"
-
-create_csq_query = "CREATE TABLE cashflow_statement_q (
-  company_id TEXT,
-  date DATE,
-  operating_cashflow REAL,
-  investing_cashflow REAL,
-  financing_cashflow REAL,
-  PRIMARY KEY (company_id, date),
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)"
-
-dbExecute(connn, create_csy_query)
-
-dbExecute(connn, create_csq_query)
-
-
-## Create the "balance_sheet" table --------------------------------------
-create_bsy_query =  "CREATE TABLE balance_sheet_y (
-  company_id TEXT,
-  date DATE,
-  assets REAL,
-  liabilities REAL,
-  equity REAL,
-  PRIMARY KEY (company_id, date),
-  FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
-)"
-
-dbExecute(connn, create_bsy_query)
-
-
-## Create FINANCIAL DATA Table --------------------------------------
-create_financialdata_query = "
-  CREATE TABLE combined_table AS
-  SELECT 
-    COALESCE(bs.company_id, isy.company_id, cfy.company_id, isq.company_id, cfq.company_id) AS company_id,
-    COALESCE(bs.date, isy.date, cfy.date, isq.date, cfq.date) AS date,
-    bs.balance_value AS bs_balance_value,
-    isy.income_value AS isy_income_value,
-    cfy.cashflow_value AS cfy_cashflow_value,
-    isq.income_value AS isq_income_value,
-    cfq.cashflow_value AS cfq_cashflow_value
-  FROM 
-    balance_sheet_y bs
-  FULL OUTER JOIN 
-    income_statement_y isy ON bs.company_id = isy.company_id AND bs.date = isy.date
-  FULL OUTER JOIN 
-    cashflow_statement_y cfy ON bs.company_id = cfy.company_id AND bs.date = cfy.date
-  FULL OUTER JOIN 
-    income_statement_q isq ON bs.company_id = isq.company_id AND bs.date = isq.date
-  FULL OUTER JOIN 
-    cashflow_statement_q cfq ON bs.company_id = cfq.company_id AND bs.date = cfq.date
-"
-
-# Execute the query to create the new table
-dbExecute(connn, create_financialdata_query)
 
 
 ## Create the "financial_ratios" table --------------------------------------
@@ -245,7 +170,7 @@ dbExecute(connn, insert_newhistoricaldata_query,
           list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
 
 
-dbExecute(connn, update_hsitorical_data_date_query,
+dbExecute(connn, update_historical_data_date_query,
           list(as.character(Sys.Date()), exp_select_AddCompany))
 
 
@@ -253,20 +178,36 @@ dbExecute(connn, update_hsitorical_data_date_query,
 
 list_ticker = get_statements(exp_select_AddCompany)
 
-DT = copy(list_ticker)
+dtw = record_statements(list_ticker, exp_select_AddCompany)
+
+# DT = copy(list_ticker)
+# 
+# DTS = DT[['MELI']]
+# # DTS = DT[[1]]
+# 
+# DTW_bsy = copy(DTS[['bs_y']])
+# DTW_iny = copy(DTS[['in_y']])
+# DTW_csy = copy(DTS[['cs_y']])
+# DTW_inq = copy(DTS[['in_q']])
+# DTW_csq = copy(DTS[['cs_q']])
+# 
+# dtw_bsy = melt(DTW_bsy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+# dtw_iny = melt(DTW_iny[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+# dtw_csy = melt(DTW_csy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+# dtw_inq = melt(DTW_inq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+# dtw_csq = melt(DTW_csq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
+# 
+# dtw = rbindlist(list(dtw_bsy, dtw_iny, dtw_csy, dtw_inq, dtw_csq))
+# 
+# setnames(dtw, 'id', 'company_id')
 
 
-
-DTS = DT[['MELI']]
-# DTS = DT[[1]]
-
-DTW_bsy = copy(DTS[['bs_y']])
-DTW_iny = copy(DTS[['in_y']])
-DTW_csy = copy(DTS[['cs_y']])
-DTW_inq = copy(DTS[['in_q']])
-DTW_csq = copy(DTS[['cs_q']])
+dbExecute(connn, insert_newfinancialdata_query,
+          list(dtw$company_id, rep(as.character(Sys.Date()), nrow(dtw)), dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
 
 
+dbExecute(connn, update_financial_data_date_query,
+          list(as.character(Sys.Date()), exp_select_AddCompany))
 
 
 ## E. Check if datas available --------------------------------------------------------------------------
@@ -278,6 +219,7 @@ dbExecute(connn, update_availabledata_query)
 
 dtw = data.table::data.table(dbReadTable(connn, "my_companies"))
 dt_hp = data.table::data.table(dbReadTable(connn, "historical_price"))
+dt_fd = data.table::data.table(dbReadTable(connn, "financial_statements"))
 
 print(dtw)
 

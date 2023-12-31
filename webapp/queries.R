@@ -16,7 +16,12 @@ update_availabledata_query =
                    WHEN EXISTS (SELECT 1 FROM historical_price WHERE historical_price.company_id = my_companies.company_id)
                    THEN 1
                    ELSE 0
-                 END"
+                 END,
+    financial_data = CASE
+                       WHEN EXISTS (SELECT 1 FROM financial_statements WHERE financial_statements.company_id = my_companies.company_id)
+                       THEN 1
+                       ELSE 0
+                     END;"
 
 
 
@@ -25,6 +30,10 @@ update_availabledata_query =
 insert_newhistoricaldata_query = 
    'INSERT INTO historical_price (company_id, date, closing_price, volume) VALUES (?, ?, ?, ?)'
 
-update_hsitorical_data_date_query = paste0("UPDATE my_companies SET historical_data_update = ? WHERE company_id = ?")
+insert_newfinancialdata_query = 
+   'INSERT INTO financial_statements (company_id, date, stmt, type, voice, time, value) VALUES (?, ?, ?, ?, ?, ?, ?)'
+
+update_historical_data_date_query = paste0("UPDATE my_companies SET historical_data_update = ? WHERE company_id = ?")
+update_financial_data_date_query = paste0("UPDATE my_companies SET financial_data_update = ? WHERE company_id = ?")
 
 
