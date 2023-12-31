@@ -270,7 +270,7 @@ server_app = function(input, output, session) {
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset-price', ".csv")
+         paste0('dataset-price-', input$exp_select_tickerTable, ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -374,7 +374,7 @@ server_app = function(input, output, session) {
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset-financial', ".csv")
+         paste0('dataset-financial-', input$exp_select_tickerTable, ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -439,7 +439,7 @@ server_app = function(input, output, session) {
       
       # Insert a new row into the my_companies table
       dbExecute(connn, insert_newcompany_query,
-                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, 0, 0, 0, 0, 0, 0))
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
       
       if(input$exp_data2add == 'exp_add_data_market') {
          
@@ -447,7 +447,10 @@ server_app = function(input, output, session) {
          new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
          
          dbExecute(connn, insert_newhistoricaldata_query,
-                   list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
+                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+         
+         dbExecute(connn, update_hsitorical_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
          }
       
       # if(input$exp_data2add == 'exp_add_data_financial') {
@@ -532,7 +535,7 @@ server_app = function(input, output, session) {
       
       # Insert a new row into the my_companies table
       dbExecute(connn, insert_newcompany_query,
-                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, 0, 0, 0, 0, 0, 0))
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
 
       removeModal()
    })
@@ -630,15 +633,23 @@ server_app = function(input, output, session) {
       })   
    
    
-   output$bck_table_trialdb = renderReactable({
+   output$bck_table_db = renderReactable({
       
       dtw = dt_con_companies()
       dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
+      dtw[, financial_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
+      dtw[, ratios_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
+      dtw[, id := NULL]
       
       reactable(
          dtw,
+         highlight = TRUE,
+         filterable = TRUE,
+         outlined = FALSE,
+         compact = TRUE,
+         wrap = FALSE,
+         defaultPageSize = 20,
          columns = list(
-            id = colDef(name = "#"),
             company_id = colDef(name = "TICKER/ID"),
             company_name = colDef(name = "Name"),
             industry = colDef(name = "Industry"),
@@ -647,8 +658,11 @@ server_app = function(input, output, session) {
             founded_year = colDef(name = "Founded"),
             status = colDef(name = "Status"),
             historical_data = colDef(name = "Historical", cell = button_extra("bck_button_table_hc", class = "btn btn-primary")),
-            # fd_available = colDef(name = "Financial", cell = button_extra("bck_button_table_fd", class = "btn btn-primary")),
-            ratios_data = colDef(name = "Ratios", cell = button_extra("bck_button_table_rt", class = "btn btn-primary"))
+            historical_data_update = colDef(name = "Last update"),
+            financial_data = colDef(name = "Financial", cell = button_extra("bck_button_table_fd", class = "btn btn-primary")),
+            financial_data_update = colDef(name = "Last update"),
+            ratios_data = colDef(name = "Ratios", cell = button_extra("bck_button_table_rt", class = "btn btn-primary")),
+            ratios_data_update = colDef(name = "Last update")
          )
       )
    })

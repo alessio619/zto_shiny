@@ -5,6 +5,7 @@
 # Load the RSQLite package
 library(RSQLite)
 library(DBI)
+library(aws.s3)
 source(file.path('webapp', 'queries.R'))
 source(file.path('webapp', 'financial.R'))
 
@@ -26,12 +27,11 @@ create_mycompanies_query = "CREATE TABLE my_companies (
   founded_year INTEGER,
   status TEXT CHECK(status IN ('Active', 'Inactive', 'Pending', 'Follow')),
   historical_data INTERGER,
-  findata_y_bs INTERGER,
-  findata_y_is INTERGER,
-  findata_y_cs INTERGER,
-  findata_q_is INTERGER,
-  findata_q_cs INTERGER,  
-  ratios_data INTERGER  
+  historical_data_update DATE,
+  financial_data INTERGER,
+  financial_data_update DATE,
+  ratios_data INTERGER,
+  ratios_data_update DATE
 )"
 
 dbExecute(connn, create_mycompanies_query)
@@ -200,18 +200,18 @@ sample_data = data.frame(
    id = c(1,2,3),
    company_id = c('ITR.MI', 'BBB.MI', 'MELI'),
    company_name = c("INTRED", "Company B", 'Mercado Libre'),
-   industry = c("Technology", "Finance", NA),
-   market = c('EURONEXT.G.MI', 'EURONEXT.G.MI', NA),
-   headquarters = c("Milano", "Roma", NA),
-   founded_year = c(2000, 1995, NA),
+   industry = c("Technology", "Finance", NA_character_),
+   market = c('EURONEXT.G.MI', 'EURONEXT.G.MI', NA_character_),
+   headquarters = c("Milano", "Roma", NA_character_),
+   founded_year = c(2000, 1995, NA_integer_),
    status = c("Active", 'Pending', 'Follow'),
    historical_data = c(0,0,0),
-   findata_y_bs = c(0,0,0),
-   findata_y_is = c(0,0,0),
-   findata_y_cs = c(0,0,0),
-   findata_q_is = c(0,0,0),
-   findata_q_cs = c(0,0,0)
-   )
+   historical_data_update = c(NA_character_, NA_character_, NA_character_),
+   financial_data = c(0,0,0),
+   financial_data_update = c(NA_character_, NA_character_, NA_character_),
+   ratios_data = c(0,0,0),
+   ratios_data_update = c(NA_character_, NA_character_, NA_character_)
+      )
 
 
 dbWriteTable(connn, "my_companies", sample_data, append = TRUE)
@@ -228,13 +228,15 @@ dbWriteTable(connn, "my_companies", sample_data, append = TRUE)
 
 
 
-## C. Add historical data --------------------------------------------------------------------------
+## C. Add Historical data --------------------------------------------------------------------------
 
-dt_fetchedTickers = fetch_tickers(TICKERS = 'MELI',
+exp_select_AddCompany = 'MELI'
+
+dt_fetchedTickers = fetch_tickers(TICKERS = exp_select_AddCompany,
                           INIT_DATE = '2021-01-01',
                           END_DATE = Sys.Date())
 
-exp_select_AddCompany = 'MELI'
+
 
 new_records = dt_fetchedTickers[ticker %in% exp_select_AddCompany]
 new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
@@ -243,8 +245,31 @@ dbExecute(connn, insert_newhistoricaldata_query,
           list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
 
 
+dbExecute(connn, update_hsitorical_data_date_query,
+          list(as.character(Sys.Date()), exp_select_AddCompany))
 
-## C. Check if datas available --------------------------------------------------------------------------
+
+## D. Add Financial data --------------------------------------------------------------------------
+
+list_ticker = get_statements(exp_select_AddCompany)
+
+DT = copy(list_ticker)
+
+
+
+DTS = DT[['MELI']]
+# DTS = DT[[1]]
+
+DTW_bsy = copy(DTS[['bs_y']])
+DTW_iny = copy(DTS[['in_y']])
+DTW_csy = copy(DTS[['cs_y']])
+DTW_inq = copy(DTS[['in_q']])
+DTW_csq = copy(DTS[['cs_q']])
+
+
+
+
+## E. Check if datas available --------------------------------------------------------------------------
 
 dbExecute(connn, update_availabledata_query)
 
