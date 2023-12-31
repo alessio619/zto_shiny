@@ -437,6 +437,8 @@ server_app = function(input, output, session) {
       founded_year = input$exp_foundedYearInput
       status = input$exp_statusInput
       
+      w$show()
+      
       # Insert a new row into the my_companies table
       dbExecute(connn, insert_newcompany_query,
                 list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
@@ -451,37 +453,52 @@ server_app = function(input, output, session) {
          
          dbExecute(connn, update_historical_data_date_query,
                    list(as.character(Sys.Date()), input$exp_select_AddCompany))
-         }
-      
-      if(input$exp_data2add == 'exp_add_data_financial') {
+         
+         } else if(input$exp_data2add == 'exp_add_data_financial') {
 
          dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         dtw[, id := .I]
+         dtw[, date := as.character(Sys.Date())]
          
          dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$company_id, rep(as.character(Sys.Date()), nrow(dtw)), dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
          
+         dbExecute(connn, update_financial_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         
+      } else if(input$exp_data2add == 'exp_add_data_both') {
+
+         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+         
+         dbExecute(connn, insert_newhistoricaldata_query,
+                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+         
+         dbExecute(connn, update_historical_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         
+         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         dtw[, id := .I]
+         dtw[, date := as.character(Sys.Date())]
+         
+         dbExecute(connn, insert_newfinancialdata_query,
+                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
          
          dbExecute(connn, update_financial_data_date_query,
                    list(as.character(Sys.Date()), input$exp_select_AddCompany))
          
       }
-      # 
-      # if(input$exp_data2add == 'exp_add_data_both') {
-
-      # new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
-      # new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
-      # 
-      # dbExecute(connn, insert_newhistoricaldata_query,
-      #           list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
-      # 
-      # dbExecute(connn, update_historical_data_date_query,
-      #           list(as.character(Sys.Date()), input$exp_select_AddCompany))
-      
-      # }
       
       dbExecute(connn, update_availabledata_query)
       
+      on.exit({
+         w$hide()
+      })
+      
       removeModal()
+      
    })
    
    
@@ -586,9 +603,11 @@ server_app = function(input, output, session) {
       
          delete_mycompanies = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
          delete_historicaldata = paste0("DELETE FROM historical_price WHERE (company_id = '", input$bck_select_list, "');")
+         delete_financialdata = paste0("DELETE FROM financial_statements WHERE (company_id = '", input$bck_select_list, "');")
          
          dbExecute(connn, delete_mycompanies)
          dbExecute(connn, delete_historicaldata)
+         dbExecute(connn, delete_financialdata)
          
          removeModal()
    })
@@ -657,7 +676,7 @@ server_app = function(input, output, session) {
          removeModal()
       })   
    
-   
+    
    output$bck_table_db = renderReactable({
       
       dtw = dt_con_companies()

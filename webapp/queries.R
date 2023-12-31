@@ -31,7 +31,7 @@ insert_newhistoricaldata_query =
    'INSERT INTO historical_price (company_id, date, closing_price, volume) VALUES (?, ?, ?, ?)'
 
 insert_newfinancialdata_query = 
-   'INSERT INTO financial_statements (company_id, date, stmt, type, voice, time, value) VALUES (?, ?, ?, ?, ?, ?, ?)'
+   'INSERT INTO financial_statements (id, company_id, date, stmt, type, voice, time, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 
 update_historical_data_date_query = paste0("UPDATE my_companies SET historical_data_update = ? WHERE company_id = ?")
 update_financial_data_date_query = paste0("UPDATE my_companies SET financial_data_update = ? WHERE company_id = ?")

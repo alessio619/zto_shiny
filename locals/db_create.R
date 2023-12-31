@@ -54,6 +54,7 @@ dbExecute(connn, create_historicalprice_query)
 
 ## Create the "financial_statements" table --------------------------------------
 create_fs_query = "CREATE TABLE financial_statements (
+  id INTERGER,
   company_id TEXT,
   date DATE,
   stmt TEXT,
@@ -61,7 +62,7 @@ create_fs_query = "CREATE TABLE financial_statements (
   voice TEXT,
   time TEXT,
   value REAL,
-  PRIMARY KEY (company_id, date, time, voice),
+  PRIMARY KEY (id, company_id, date, time, voice),
   FOREIGN KEY (company_id) REFERENCES my_companies(company_id)
 )"
 
@@ -142,86 +143,6 @@ sample_data = data.frame(
 dbWriteTable(connn, "my_companies", sample_data, append = TRUE)
 
 
-## B. Delete table's record --------------------------------------------------------------------------
-
-# company_id = '1'
-# 
-# delete_queries = paste0("DELETE FROM my_companies WHERE (company_id = '", company_id, "');")
-# dbExecute(connn, delete_queries)
-
-# dbExecute(connn, update_newcompany_query,
-
-
-
-## C. Add Historical data --------------------------------------------------------------------------
-
-exp_select_AddCompany = 'MELI'
-
-dt_fetchedTickers = fetch_tickers(TICKERS = exp_select_AddCompany,
-                          INIT_DATE = '2021-01-01',
-                          END_DATE = Sys.Date())
-
-
-
-new_records = dt_fetchedTickers[ticker %in% exp_select_AddCompany]
-new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
-
-dbExecute(connn, insert_newhistoricaldata_query,
-          list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
-
-
-dbExecute(connn, update_historical_data_date_query,
-          list(as.character(Sys.Date()), exp_select_AddCompany))
-
-
-## D. Add Financial data --------------------------------------------------------------------------
-
-list_ticker = get_statements(exp_select_AddCompany)
-
-dtw = record_statements(list_ticker, exp_select_AddCompany)
-
-# DT = copy(list_ticker)
-# 
-# DTS = DT[['MELI']]
-# # DTS = DT[[1]]
-# 
-# DTW_bsy = copy(DTS[['bs_y']])
-# DTW_iny = copy(DTS[['in_y']])
-# DTW_csy = copy(DTS[['cs_y']])
-# DTW_inq = copy(DTS[['in_q']])
-# DTW_csq = copy(DTS[['cs_q']])
-# 
-# dtw_bsy = melt(DTW_bsy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
-# dtw_iny = melt(DTW_iny[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
-# dtw_csy = melt(DTW_csy[, type := 'annual'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
-# dtw_inq = melt(DTW_inq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
-# dtw_csq = melt(DTW_csq[, type := 'quarter'], id.vars = c('id', 'stmt', 'type', 'voice'), variable.name = 'time', value.name = 'value')
-# 
-# dtw = rbindlist(list(dtw_bsy, dtw_iny, dtw_csy, dtw_inq, dtw_csq))
-# 
-# setnames(dtw, 'id', 'company_id')
-
-
-dbExecute(connn, insert_newfinancialdata_query,
-          list(dtw$company_id, rep(as.character(Sys.Date()), nrow(dtw)), dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
-
-
-dbExecute(connn, update_financial_data_date_query,
-          list(as.character(Sys.Date()), exp_select_AddCompany))
-
-
-## E. Check if datas available --------------------------------------------------------------------------
-
-dbExecute(connn, update_availabledata_query)
-
-
-## D. Read tables --------------------------------------------------------------------------
-
-dtw = data.table::data.table(dbReadTable(connn, "my_companies"))
-dt_hp = data.table::data.table(dbReadTable(connn, "historical_price"))
-dt_fd = data.table::data.table(dbReadTable(connn, "financial_statements"))
-
-print(dtw)
 
 
 # 4. Close the database connection --------------------------------------------------------------------------

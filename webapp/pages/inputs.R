@@ -272,8 +272,8 @@ in_exp_data2add =
    radioButtons(
       inputId = "exp_data2add",
       label = span('Data to Add', style = 'color: #75A5B7; font-weight: bold;'),
-      choices = c('Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'Both' = 'exp_add_data_all'),
-      selected = 'exp_add_data_market',
+      choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial'),
+      selected = 'exp_add_data_both',
       width = '100%'
    )
 
