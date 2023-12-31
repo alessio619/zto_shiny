@@ -14,11 +14,11 @@ fluidRow( # big fluid row start
          ## First accordion --------------------------------------------------
          accordion(
             accordion_panel(
-               title = h2("Explore", style = 'font-weight: bold; color: #4C6279'),
-               in_exp_select_ticker,
-               in_exp_insert_ticker,             
-               in_exp_dateRange,
-               value = 'sth2') ### accordion panel
+               title = h3('Explore', style = 'color: #4C6279'),
+               in_exp_select_list,
+               in_exp_upload_ticker_list,
+               value = 'sth1'
+            ) ### accordion panel
          ), ### accordion      
          
          br(),
@@ -27,11 +27,22 @@ fluidRow( # big fluid row start
          accordion(
             accordion_panel(
                title = h5("Retrieve", style = 'font-weight: bold; color: #4C6279'),
+               in_exp_select_ticker,
+               in_exp_insert_ticker,             
+               in_exp_dateRange,
+               value = 'sth2') ### accordion panel
+         ),
+         
+         br(),
+         
+         accordion(
+            accordion_panel(
+               title = h5("Retrieve", style = 'font-weight: bold; color: #4C6279'),
                in_exp_button_fetchTickers,
                br(), br(),
                in_exp_button_fetchFinancials,
-               value = 'sth3'
-            )),
+               value = 'sth3')
+            ), ### accordion
          
          br(),
          
@@ -47,17 +58,9 @@ fluidRow( # big fluid row start
             )
          ), ### accordion           
 
-         br(),
+         br()
          
          ## Fourth accordion --------------------------------------------------
-         accordion(
-            accordion_panel(
-               title = h5('List of companies', style = 'color: #4C6279'),
-               in_exp_select_list,
-               in_exp_upload_ticker_list,
-               value = 'sth1'
-            ) ### accordion panel
-         ), ### accordion
      ),         
      
      

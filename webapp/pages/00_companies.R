@@ -11,7 +11,7 @@ page_backend =  fluidPage(
    
    fluidRow( # big fluid row start
       
-      column(width = 2,
+      column(width = 3,
              
        ## From DB --------------------------------------------------
              accordion(
@@ -40,7 +40,7 @@ page_backend =  fluidPage(
         ) ### accordion      
       ), ### column
       
-      column(width = 10,
+      column(width = 9,
          reactableOutput(outputId = 'bck_table_trialdb')
       )
       

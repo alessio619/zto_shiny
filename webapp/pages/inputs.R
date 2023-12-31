@@ -11,7 +11,7 @@ in_exp_select_list =
    radioGroupButtons(
       inputId = "exp_select_list",
       label = span('List origin', style = 'color: #75A5B7; font-weight: bold;'), 
-      choices = c('Base' = 'list_base', 'DB' = 'list_db', 'Upload' = 'list_upload'),
+      choices = c('Online' = 'list_base', 'DB' = 'list_db', 'Upload' = 'list_upload'),
       selected = 'list_base',
       justified = TRUE,
       width = '100%',
@@ -145,7 +145,7 @@ in_exp_finType =
 in_exp_button_fetchTickers = 
    actionButton(
       inputId = 'exp_button_fetchTickers',
-      label = 'Fetch price',
+      label = 'Fetch Market Data',
       class = 'btn-secondary',
       icon = shiny::icon("chart-line"),
       width = '100%'

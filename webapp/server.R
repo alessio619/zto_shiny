@@ -638,12 +638,12 @@ server_app = function(input, output, session) {
       reactable(
          dtw,
          columns = list(
-            id = colDef(name = "#", minWidth = 20),
-            company_id = colDef(name = "TICKER/ID", minWidth = 50),
+            id = colDef(name = "#"),
+            company_id = colDef(name = "TICKER/ID"),
             company_name = colDef(name = "Name"),
             industry = colDef(name = "Industry"),
             market = colDef(name = "Market"),
-            headquarters = colDef(name = "Headquarters"),
+            headquarters = colDef(name = "HQ"),
             founded_year = colDef(name = "Founded"),
             status = colDef(name = "Status"),
             historical_data = colDef(name = "Historical", cell = button_extra("bck_button_table_hc", class = "btn btn-primary")),
