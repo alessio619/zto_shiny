@@ -3,7 +3,7 @@
 
 zerotoonec_theme =
    bs_theme(
-      bootswatch = "litera",
+      bootswatch = "flatly",
       primary = '#75A5B7',
       secondary = '#6c757d',
       info = '#4C6279',

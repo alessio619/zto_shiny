@@ -13,7 +13,11 @@ source(file.path('webapp', 'financial.R'))
 # 1. Create a connection to the SQLite database --------------------------------------------------------------------------
 connn = dbConnect(SQLite(), dbname = "data/zto_database.db")
 
-exp_select_AddCompany = 'AGA.MI'
+dtw = data.table::data.table(dbReadTable(connn, "my_companies"))
+dt_hp = data.table::data.table(dbReadTable(connn, "historical_price"))
+dt_fd = data.table::data.table(dbReadTable(connn, "financial_statements"))
+
+exp_select_AddCompany = c('AGA.MI')
 
 
 
@@ -48,7 +52,7 @@ delete_mycompanies = paste0("DELETE FROM my_companies WHERE (company_id = '", ex
 delete_historicaldata = paste0("DELETE FROM historical_price WHERE (company_id = '", exp_select_AddCompany, "');")
 delete_financialdata = paste0("DELETE FROM financial_statements WHERE (company_id = '", exp_select_AddCompany, "');")
 
-dbExecute(connn, delete_financialdata)
+dbExecute(connn, delete_historicaldata)
 
 
 ## C. Add Historical data --------------------------------------------------------------------------
@@ -62,6 +66,21 @@ dt_fetchedTickers = fetch_tickers(TICKERS = exp_select_AddCompany,
 new_records = dt_fetchedTickers[ticker %in% exp_select_AddCompany]
 new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
 
+
+### Insert new ----
+dbExecute(connn, insert_newhistoricaldata_query,
+          list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
+
+
+dbExecute(connn, update_historical_data_date_query,
+          list(as.character(Sys.Date()), exp_select_AddCompany))
+
+
+### Insert Updates -----
+old_records = dt_hp[company_id == exp_select_AddCompany]
+max_date = max(old_records$date)
+new_records = new_records[date > max_date]
+
 dbExecute(connn, insert_newhistoricaldata_query,
           list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
 
@@ -73,16 +92,32 @@ dbExecute(connn, update_historical_data_date_query,
 ## D. Add Financial data --------------------------------------------------------------------------
 
 list_ticker = get_statements(exp_select_AddCompany)
+list_ticker[[exp_select_AddCompany[[2]]]]
 
-dtw = record_statements(list_ticker, exp_select_AddCompany)
+
+dtw = record_statements(list_ticker, exp_select_AddCompany[[2]])
 dtw[, id := .I]
 dtw[, date := as.character(Sys.Date())]
 
-dbExecute(connn, insert_newfinancialdata_query,
-          list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+tryCatch({
+   # Your database operation that may result in a unique constraint violation
+   dbExecute(connn, insert_newfinancialdata_query,
+             list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+   
+}, error = function(e) {
+   # Check if the error is related to a unique constraint violation
+   if (grepl("UNIQUE constraint failed", e$message)) {
+      print("Data already present.")
+   } else {
+      # Handle other types of errors
+      stop(e)
+   }
+})
+
+
 
 dbExecute(connn, update_financial_data_date_query,
-          list(as.character(Sys.Date()), exp_select_AddCompany))
+          list(as.character(Sys.Date()), exp_select_AddCompany[[2]]))
 
 
 

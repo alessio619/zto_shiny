@@ -92,11 +92,11 @@ navbarPage(
    )), 
    
    tags$style(HTML(
-      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+      '.selectize-control.multi .selectize-input > div {color: #6c757d}'
    )), 
    
    tags$style(HTML(
-      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+      '.selectize-input > * {color: #6c757d}'
    )), 
    
    tags$style(HTML(

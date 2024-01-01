@@ -74,7 +74,7 @@ fluidRow( # big fluid row start
                  layout_column_wrap(
                     !!!list(
                        value_box(
-                          title = "Current",
+                          title = span("Current", style = 'font-weight: bold'),
                           value = textOutput("calc_current_value"),
                           showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 5vh'),
                           showcase_layout = "top right",
@@ -82,7 +82,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),                       
                        value_box(
-                          title = "Maximum",
+                          title = span("Max", style = 'font-weight: bold'),
                           value = textOutput("calc_max_value"),
                           showcase = span(bs_icon("graph-up", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#6EBDAB"),
@@ -90,7 +90,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),
                        value_box(
-                          title = "Minimum",
+                          title = span("Min", style = 'font-weight: bold'),
                           value = textOutput("calc_min_value"),
                           showcase = span(bs_icon("dash-circle", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#F29191"),
@@ -98,7 +98,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),
                        value_box(
-                          title = "Mean",
+                          title = span("Average", style = 'font-weight: bold'),
                           value = textOutput("calc_mean_value"),
                           showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#75A5B7"),

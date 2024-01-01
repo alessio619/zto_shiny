@@ -227,6 +227,15 @@ in_exp_upd_company_modal =
       icon = shiny::icon("pen"))
 
 
+in_bck_update_company_modal = 
+   actionButton(
+      inputId = "bck_update_company_modal",
+      label = "Update",
+      class = 'btn-warning',
+      icon = shiny::icon("pen"))
+
+
+
 exp_companySymbolInput =
    textInput(
       inputId = "exp_companySymbolInput", 
@@ -272,7 +281,7 @@ in_exp_data2add =
    radioButtons(
       inputId = "exp_data2add",
       label = span('Data to Add', style = 'color: #75A5B7; font-weight: bold;'),
-      choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial'),
+      choices = c('No data'),
       selected = 'exp_add_data_both',
       width = '100%'
    )
