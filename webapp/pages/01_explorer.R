@@ -5,38 +5,62 @@ page_explorer =  fluidPage(
    
    useWaiter(),
    
-   # fluidRow(tableOutput('texto')),
+   fluidRow(tableOutput('texto')),
    
 fluidRow( # big fluid row start
    
      column(width = 3,
             
          ## First accordion --------------------------------------------------
-            accordion(
-               accordion_panel(
-                  title = h2('Explore', style = 'color: #4C6279'),
-                  in_exp_select_list,
-                  in_exp_upload_ticker_list,
-                  value = 'sth1'
-               ) ### accordion panel
-         ), ### accordion
+         accordion(
+            accordion_panel(
+               title = h3('Explore', style = 'color: #4C6279'),
+               in_exp_select_list,
+               in_exp_upload_ticker_list,
+               value = 'sth1'
+            ) ### accordion panel
+         ), ### accordion      
          
          br(),
          
          ## Second accordion --------------------------------------------------
          accordion(
             accordion_panel(
-               title = h5("Search companies", style = 'font-weight: bold; color: #4C6279'),
+               title = h5("Retrieve", style = 'font-weight: bold; color: #4C6279'),
                in_exp_select_ticker,
                in_exp_insert_ticker,             
                in_exp_dateRange,
                value = 'sth2') ### accordion panel
-         ), ### accordion
+         ),
+         
          br(),
-         card(style = 'border-color: rgb(221, 221, 221);',
-            in_exp_button_fetchTickers,
-            in_exp_button_fetchFinancials
-         ) ### card
+         
+         accordion(
+            accordion_panel(
+               title = h5("Retrieve", style = 'font-weight: bold; color: #4C6279'),
+               in_exp_button_fetchTickers,
+               br(), br(),
+               in_exp_button_fetchFinancials,
+               value = 'sth3')
+            ), ### accordion
+         
+         br(),
+         
+         ## Third accordion --------------------------------------------------
+         accordion(
+            accordion_panel(
+               title = h5("Record", style = 'font-weight: bold; color: #4C6279'),
+               in_exp_select_AddCompany,
+               in_exp_add_company,
+               br(),br(),
+               in_exp_upd_company_modal,
+               value = 'sth4'
+            )
+         ), ### accordion           
+
+         br()
+         
+         ## Fourth accordion --------------------------------------------------
      ),         
      
      
@@ -50,7 +74,7 @@ fluidRow( # big fluid row start
                  layout_column_wrap(
                     !!!list(
                        value_box(
-                          title = "Current",
+                          title = span("Current", style = 'font-weight: bold'),
                           value = textOutput("calc_current_value"),
                           showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 5vh'),
                           showcase_layout = "top right",
@@ -58,7 +82,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),                       
                        value_box(
-                          title = "Maximum",
+                          title = span("Max", style = 'font-weight: bold'),
                           value = textOutput("calc_max_value"),
                           showcase = span(bs_icon("graph-up", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#6EBDAB"),
@@ -66,7 +90,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),
                        value_box(
-                          title = "Minimum",
+                          title = span("Min", style = 'font-weight: bold'),
                           value = textOutput("calc_min_value"),
                           showcase = span(bs_icon("dash-circle", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#F29191"),
@@ -74,7 +98,7 @@ fluidRow( # big fluid row start
                           class = "border"
                        ),
                        value_box(
-                          title = "Mean",
+                          title = span("Average", style = 'font-weight: bold'),
                           value = textOutput("calc_mean_value"),
                           showcase = span(bs_icon("calculator", size = '1em'), style = 'padding-top: 5vh'),
                           theme = value_box_theme(bg = "#f9f9f9", fg = "#75A5B7"),

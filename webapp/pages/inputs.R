@@ -11,7 +11,7 @@ in_exp_select_list =
    radioGroupButtons(
       inputId = "exp_select_list",
       label = span('List origin', style = 'color: #75A5B7; font-weight: bold;'), 
-      choices = c('Base' = 'list_base', 'Upload' = 'list_upload', 'Both' = 'list_both'),
+      choices = c('Online' = 'list_base', 'DB' = 'list_db', 'Upload' = 'list_upload'),
       selected = 'list_base',
       justified = TRUE,
       width = '100%',
@@ -145,8 +145,8 @@ in_exp_finType =
 in_exp_button_fetchTickers = 
    actionButton(
       inputId = 'exp_button_fetchTickers',
-      label = 'Fetch price',
-      class = 'btn-success',
+      label = 'Fetch Market Data',
+      class = 'btn-secondary',
       icon = shiny::icon("chart-line"),
       width = '100%'
    )
@@ -192,8 +192,99 @@ in_exp_button_fetchFinancials =
    )
 
 
+in_exp_add_company = 
+   actionButton(
+      inputId = "exp_add_company",
+      label = "Add company",
+      class = 'btn-success',
+      icon = shiny::icon("plus"),
+      width = '100%')
 
 
+in_exp_select_AddCompany = 
+   selectInput(
+      inputId = 'exp_select_AddCompany',
+      label = NULL,
+      choices = NULL,
+      width = '100%',
+      multiple = FALSE
+   )
+   
+
+in_exp_add_company_modal = 
+   actionButton(
+      inputId = "exp_addCompanyBtn",
+      label = "Add",
+      class = 'btn-success',
+      icon = shiny::icon("plus"))
+
+in_exp_upd_company_modal = 
+   actionButton(
+      inputId = "exp_updateCompanyBtn",
+      label = "Update data",
+      class = 'btn-warning',
+      width = '100%',
+      icon = shiny::icon("pen"))
+
+
+in_bck_update_company_modal = 
+   actionButton(
+      inputId = "bck_update_company_modal",
+      label = "Update",
+      class = 'btn-warning',
+      icon = shiny::icon("pen"))
+
+
+
+exp_companySymbolInput =
+   textInput(
+      inputId = "exp_companySymbolInput", 
+      label = span('Company ID', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_companyNameInput =
+   textInput(
+      inputId = "exp_companyNameInput", 
+      label = span('Company Name', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_industryInput =
+   selectInput(
+      inputId = "exp_industryInput", 
+      label = span('Industry', style = 'color: #4C6279; font-weight: bold;'), choices = c("Technology", "Finance", "Other"),
+      width = '100%')
+
+exp_marketInput = 
+   selectInput(
+      inputId = "exp_marketInput", 
+      label = span('Market', style = 'color: #4C6279; font-weight: bold;'), choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE"),
+      width = '100%')
+
+exp_headquartersInput = 
+   textInput(
+      inputId = "exp_headquartersInput", 
+      label = span('Headquarters', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+exp_foundedYearInput = 
+   numericInput("exp_foundedYearInput", 
+                label = span('Founded Year', style = 'color: #4C6279; font-weight: bold;'), value = 2000, min = 1800, max = 2023,
+                width = '100%')
+
+exp_statusInput = 
+   selectInput(
+      inputId = "exp_statusInput", 
+      label = span('Status', style = 'color: #4C6279; font-weight: bold;'), choices = c("Active", "Inactive", "Pending"),
+      width = '100%')
+
+in_exp_data2add =
+   radioButtons(
+      inputId = "exp_data2add",
+      label = span('Data to Add', style = 'color: #75A5B7; font-weight: bold;'),
+      choices = c('No data'),
+      selected = 'exp_add_data_both',
+      width = '100%'
+   )
 
 
 ## 00_Backend --------------------------------------------------------
@@ -203,7 +294,7 @@ in_exp_button_fetchFinancials =
 in_bck_add_company = 
    actionButton(
       inputId = "bck_add_company",
-      label = "Add company record",
+      label = "Add company",
       class = 'btn-success',
       icon = shiny::icon("plus"),
       width = '100%')
@@ -211,10 +302,9 @@ in_bck_add_company =
 in_bck_add_company_modal = 
    actionButton(
       inputId = "bck_addCompanyBtn",
-      label = "Add company",
+      label = "Add",
       class = 'btn-success',
-      icon = shiny::icon("plus"),
-      width = '100%')
+      icon = shiny::icon("plus"))
 
 bck_companySymbolInput =
    textInput(
@@ -258,7 +348,76 @@ bck_statusInput =
       width = '100%')
 
 
+### Edit company --------------------------------------------------------
+
+in_bck_edit_company =
+   actionButton(
+      inputId = "bck_edit_company",
+      label = "Edit company",
+      class = 'btn-info',
+      icon = shiny::icon("pen"),
+      width = '100%')
+
+in_bck_edit_company_modal = 
+   actionButton(
+      inputId = "edit_bck_addCompanyBtn",
+      label = "Edit",
+      class = 'btn-info',
+      icon = shiny::icon("pen"))
+
+bck_edit_companySymbolInput =
+   textInput(
+      inputId = "edit_companySymbolInput", 
+      label = span('Company ID', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+bck_edit_companyNameInput =
+   textInput(
+      inputId = "edit_companyNameInput", 
+      label = span('Company Name', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+bck_edit_industryInput =
+   selectInput(
+      inputId = "edit_industryInput", 
+      label = span('Industry', style = 'color: #4C6279; font-weight: bold;'), choices = c("Technology", "Finance", "Other"),
+      width = '100%')
+
+bck_edit_marketInput = 
+   selectInput(
+      inputId = "edit_marketInput", 
+      label = span('Market', style = 'color: #4C6279; font-weight: bold;'), choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE"),
+      width = '100%')
+
+bck_edit_headquartersInput = 
+   textInput(
+      inputId = "edit_headquartersInput", 
+      label = span('Headquarters', style = 'color: #4C6279; font-weight: bold;'),
+      width = '100%')
+
+bck_edit_foundedYearInput = 
+   numericInput("edit_foundedYearInput", 
+                label = span('Founded Year', style = 'color: #4C6279; font-weight: bold;'), value = 2000, min = 1800, max = 2023,
+                width = '100%')
+
+bck_edit_statusInput = 
+   selectInput(
+      inputId = "edit_statusInput", 
+      label = span('Status', style = 'color: #4C6279; font-weight: bold;'), choices = c("Active", "Inactive", "Pending"),
+      width = '100%')
+
+
+
 ## Edit / Remove company --------------------------------------------------------
+
+### Refesh list
+in_bck_refresh_backend =
+   actionButton(
+      inputId = "bck_refresh_backend",
+      label = "Refesh",
+      class = 'btn-secondary',
+      icon = shiny::icon("reload"),
+      width = '100%')
 
 ### Select list origin
 in_bck_select_list =
@@ -270,20 +429,28 @@ in_bck_select_list =
    )
 
 
-in_bck_edit_company =
-   actionButton(
-      inputId = "bck_edit_company",
-      label = "Edit company data",
-      class = 'btn-info',
-      icon = shiny::icon("pen"),
-      width = '100%')
-
-
 in_bck_delete_company =
    actionButton(
-      inputId = "bck_edit_company",
+      inputId = "bck_delete_company",
       label = "Delete company",
       class = 'btn-danger',
       icon = shiny::icon("xmark"),
       width = '100%')
 
+
+## Actions from modals -------
+in_bck_button_downloadPrice = 
+   downloadButton(
+      outputId = 'bck_button_downloadPrice',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk")
+   )
+
+in_bck_button_downloadFinancial = 
+   downloadButton(
+      outputId = 'bck_button_downloadFinancial',
+      label = 'Download',
+      class = 'btn-danger',
+      icon = shiny::icon("floppy-disk")
+   )

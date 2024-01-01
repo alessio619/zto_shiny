@@ -13,6 +13,7 @@ base_path = 'webapp'
 
 source(file.path(base_path, 'setup.R'))
 source(file.path(base_path, 'theme.R'))
+source(file.path(base_path, "queries.R"))
 source(file.path(base_path, "financial.R"))
 
 

@@ -33,7 +33,7 @@ cat('021 ADMP - LOADING: Please wait while app is getting ready in your default 
 ## Load SQLite DB ----------------------------------------------------------------
 
 connn = dbConnect(SQLite(), dbname = "data/zto_database.db")
-dt_connn = data.table::data.table(dbReadTable(connn, "my_companies"))
+# dt_connn = data.table::data.table(dbReadTable(connn, "my_companies"))
 
 
 ## Euronext Growth Milan List ----------------------------------------------------------------

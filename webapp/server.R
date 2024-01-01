@@ -2,7 +2,7 @@
 # Inputs ================================================================================
 
 server_app = function(input, output, session) {
-
+   
    ## 01_explorer --------------------------------------------------------
    
    ### get ticker list -------------------
@@ -13,21 +13,15 @@ server_app = function(input, output, session) {
          engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
       }
       
+      if (input$exp_select_list == 'list_db') {
+         engm_equities_lista = data.table::data.table(dbReadTable(connn, "my_companies"))
+         engm_equities_lista = engm_equities_lista[, .(name_company =  company_name, code_ticker = company_id)]
+      }      
+      
       if (input$exp_select_list == 'list_upload') {
          if (!is.null(input$exp_upload_tickerlist$datapath)) {
             engm_equities_lista = fread(input$exp_upload_tickerlist$datapath)
          } else {
-            showNotification("Attention: No data uploaded", type = "error")
-         }
-      }
-      
-      if (input$exp_select_list == 'list_both') {
-         if (!is.null(input$exp_upload_tickerlist$datapath)) {
-            engm_equities_list_1 = fread(input$exp_upload_tickerlist$datapath)
-            engm_equities_list_2 = setDT(read.csv2(file.path('data', 'Euronext_Equities_2023-12-06.csv')))
-            engm_equities_lista = rbind(engm_equities_list_1, engm_equities_list_2, fill = TRUE)
-         } else {
-            engm_equities_lista = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')))
             showNotification("Attention: No data uploaded", type = "error")
          }
       }
@@ -38,18 +32,14 @@ server_app = function(input, output, session) {
    
    ### Update selector from the accordion
    observe({
-
       req(tickers_full_list())
-
       x = tickers_full_list()$name_company
       if (is.null(x))
          x = character(0)
       updateSelectInput(session, 'exp_select_ticker',
                         label = NULL,
-                        choices = unique(x)
-      )
+                        choices = unique(x))
    })
-   
    
    ### Update selector from the table
    observe({
@@ -79,8 +69,19 @@ server_app = function(input, output, session) {
 
    })
    
+   ### Update selector from the accordion
+   observe({
+      req(ticker_list())
+      x = ticker_list()
+      if (is.null(x))
+         x = character(0)
+      updateSelectInput(session, 'exp_select_AddCompany',
+                        label = NULL,
+                        choices = unique(x))
+   })   
    
-   ### Fetch market data ---------------------------------------------------------
+   
+   ### Fetch Market data ---------------------------------------------------------
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
@@ -94,12 +95,19 @@ server_app = function(input, output, session) {
       
    })
    
+
+   observe({
+      
+      historical_data_list$available = unique(dt_fetchedTickers()$ticker)
+      
+   })
+      
    ### Calculations on Tickers:
    dt_tickersAgg = reactive({
       
       req(dt_fetchedTickers())
       
-      dtw = copy(dt_fetchedTickers())
+      dtw = dt_fetchedTickers()
       
       xtw = calc_agg(DT = dtw)
       
@@ -261,7 +269,7 @@ server_app = function(input, output, session) {
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset-price', ".csv")
+         paste0('dataset-price-', input$exp_select_tickerTable, ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -271,7 +279,7 @@ server_app = function(input, output, session) {
    
    
    
-   ### Fetch financial data ---------------------------------------------------------
+   ### Fetch Financial data ---------------------------------------------------------
    
    w = Waiter$new(
       html = spin_3(),
@@ -297,6 +305,12 @@ server_app = function(input, output, session) {
       
    })
    
+   observe({
+      
+      financial_data_list$available = unique(names(dt_fetchedFinancials()))
+      
+   })
+   
    
    ### Update selector
    observe({
@@ -308,7 +322,8 @@ server_app = function(input, output, session) {
          x = character(0)
       updateSelectInput(session, 'exp_select_tickerTable',
                         label = NULL,
-                        choices = unique(x)
+                        choices = unique(x),
+                        selected = head(x, 1)
       )
    })   
    
@@ -364,7 +379,7 @@ server_app = function(input, output, session) {
       
       filename = function() {
          # Use the selected dataset as the suggested file name
-         paste0('dataset-financial', ".csv")
+         paste0('dataset-financial-', input$exp_select_tickerTable, ".csv")
       },
       content = function(file) {
          # Write the dataset to the `file` that will be downloaded
@@ -373,15 +388,357 @@ server_app = function(input, output, session) {
    ) 
    
    
+   ### Follow / Add company --------------------------------------------------------
+   
+   
+   observeEvent(input$exp_add_company, {
+      x = ticker_list()
+      updateTextInput(session, 'exp_companySymbolInput', value = unique(input$exp_select_AddCompany))
+   })   
+   
+   
+   observeEvent(input$exp_add_company, {
+      
+      ## for later
+      in_companies = dt_con_companies()[company_id %in% input$exp_select_AddCompany]$company_id
+      
+      if(identical(in_companies, character(0))) {
+         
+         showModal(
+            modalDialog(
+               id = "exp_addCompanyModal",
+               title = "Add Company",
+               exp_companySymbolInput,
+               exp_companyNameInput,
+               exp_industryInput,
+               exp_marketInput,
+               exp_headquartersInput,
+               exp_foundedYearInput,
+               exp_statusInput,
+               in_exp_data2add,
+               footer = tagList(
+                  in_exp_add_company_modal,
+                  modalButton("Dismiss")
+               )
+            )
+         )
+         
+      } else if(input$exp_select_AddCompany %in% in_companies) {
+         
+         showModal(
+            modalDialog(title = "Attention!", 'Duplication is not allowed. $TICKER already in DB.',
+                        easyClose = TRUE)
+         )
+         
+      } 
+   })
+   
+   observeEvent(input$exp_addCompanyBtn, {
+      # Retrieve values from inputs
+      company_id = input$exp_companySymbolInput
+      company_name = input$exp_companyNameInput
+      industry = input$exp_industryInput
+      market = input$exp_marketInput
+      headquarters = input$exp_headquartersInput
+      founded_year = input$exp_foundedYearInput
+      status = input$exp_statusInput
+      
+      w$show()
+      
+      # Insert a new row into the my_companies table
+      dbExecute(connn, insert_newcompany_query,
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
+      
+      if(input$exp_data2add == 'exp_add_data_market') {
+         
+         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+         
+         dbExecute(connn, insert_newhistoricaldata_query,
+                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+         
+         dbExecute(connn, update_historical_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+         } else if(input$exp_data2add == 'exp_add_data_financial') {
+            
+         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         dtw[, id := .I]
+         dtw[, date := as.character(Sys.Date())]
+         
+         dbExecute(connn, insert_newfinancialdata_query,
+                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+         
+         dbExecute(connn, update_financial_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+         
+      } else if(input$exp_data2add == 'exp_add_data_both') {
+
+         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+         
+         dbExecute(connn, insert_newhistoricaldata_query,
+                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+         
+         dbExecute(connn, update_historical_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         
+         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         dtw[, id := .I]
+         dtw[, date := as.character(Sys.Date())]
+         
+         dbExecute(connn, insert_newfinancialdata_query,
+                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+         
+         dbExecute(connn, update_financial_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+      }
+      
+      dbExecute(connn, update_availabledata_query)
+      
+      on.exit({
+         w$hide()
+      })
+      
+      removeModal()
+      
+   })
+   
+   
+   ### Update Data --------------
+   
+   observeEvent(input$exp_updateCompanyBtn, {
+      
+      showModal(
+         modalDialog(title = "Update Data",
+                     paste0('Are you sure you want to update data for ', input$exp_select_AddCompany, ' ?'),
+                     footer = tagList(
+                        in_bck_update_company_modal,
+                        modalButton("Dismiss")
+                     ))
+      )
+   })
+      
+   
+   observeEvent(input$bck_update_company_modal, {
+      
+      req(ticker_list())
+      x = ticker_list()
+      if (is.null(x))
+         x = character(0)
+      
+      if(tickers_data_available$tickers_hd %in% x && !tickers_data_available$tickers_fd %in% x) {
+      
+      new_records = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
+      new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
+      
+      w$show()
+      
+      tryCatch({ 
+         
+      dbExecute(connn, insert_newhistoricaldata_query,
+                list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
+      
+      dbExecute(connn, update_historical_data_date_query,
+                list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      
+      }, error = function(e) {
+         print('error')
+      })
+      
+      on.exit({
+         w$hide()
+         
+         showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+      })
+      
+      } else if(!tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
+      
+         w$show()
+         
+      tryCatch({
+
+         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         dtw[, id := .I]
+         dtw[, date := as.character(Sys.Date())]
+         
+         dbExecute(connn, insert_newfinancialdata_query,
+                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+         
+         dbExecute(connn, update_financial_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+      }, error = function(e) {
+         showNotification('Data already updated.', type = 'warning')         
+      })
+         
+         showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+         on.exit({
+            w$hide()
+         })
+         
+      } else if(tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
+         
+         new_records = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
+         new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
+         
+         w$show()
+         
+         
+         tryCatch({
+            
+         dbExecute(connn, insert_newhistoricaldata_query,
+                   list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
+         
+         dbExecute(connn, update_historical_data_date_query,
+                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         
+         }, error = function(e) {
+            print('error')
+         })
+         
+         tryCatch({
+            
+            dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+            dtw[, id := .I]
+            dtw[, date := as.character(Sys.Date())]
+            
+            dbExecute(connn, insert_newfinancialdata_query,
+                      list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+            
+            dbExecute(connn, update_financial_data_date_query,
+                      list(as.character(Sys.Date()), input$exp_select_AddCompany))
+            
+         }, error = function(e) {
+            print('error')
+         })
+         
+         showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         
+         on.exit({
+            w$hide()
+         })
+         
+      } else {
+         
+         showModal(
+            modalDialog(
+               title = "Update",
+               "No data to update.",
+               easyClose = TRUE
+            ))
+         
+      }
+      
+      dbExecute(connn, update_availabledata_query)
+      
+      removeModal()
+      
+   })
+   
+   
+   ### Add Data to company (if avaialable) -----
+   
+   historical_data_list = reactiveValues(available = c(NA))
+   financial_data_list = reactiveValues(available = c(NA))
+   
+   tickers_data_available = reactiveValues(tickers_hd = c(NA),
+                                           tickers_fd = c(NA))
+   
+   observe({
+      tickers_data_available$tickers_hd = historical_data_list$available
+      tickers_data_available$tickers_fd = financial_data_list$available
+   })
+   
+   observeEvent(input$exp_add_company, {
+      
+      req(ticker_list())
+      x = ticker_list()
+      if (is.null(x))
+         x = character(0)
+      
+      if(tickers_data_available$tickers_hd %in% x && !tickers_data_available$tickers_fd %in% x) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Market' = 'exp_add_data_market', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_market')
+         
+      } else if(!tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_financial')
+         
+      } else if(tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_both')
+         
+      } else {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_none')
+         
+      }
+      
+      
+   })
+   
+   
    # 02_analyze --------------------------------------------------------
    
    
    # 00_backend --------------------------------------------------------
    
-   ### Update selector
-   observe({
+   ### Load DB
+   dt_con_companies = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
-      x = dt_connn$company_id
+      dt_con = data.table::data.table(dbReadTable(connn, "my_companies"))
+      return(dt_con)
+      
+   })
+   
+   dt_con_historicaldata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
+      
+      dt_con = data.table::data.table(dbReadTable(connn, "historical_price"))
+      return(dt_con)
+      
+   })   
+   
+   dt_con_financialdata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
+      
+      dt_con = data.table::data.table(dbReadTable(connn, "financial_statements"))
+      return(dt_con)
+      
+   })      
+   
+   
+   observeEvent(input$bck_refresh_backend, {
+      
+      showNotification("Data from DB refreshed.", type = 'warning')
+      
+   })
+   
+   
+   
+   
+   ### Update selector
+   observeEvent(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
+      
+      x = dt_con_companies()$company_id
       if (is.null(x))
          x = character(0)
       updateSelectInput(session, 'bck_select_list',
@@ -390,8 +747,9 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Manua add company --------------------------------------------------------
+   ### Manual Add company --------------------------------------------------------
    observeEvent(input$bck_add_company, {
+      
       showModal(
          modalDialog(
             id = "bck_addCompanyModal",
@@ -403,7 +761,11 @@ server_app = function(input, output, session) {
             bck_headquartersInput,
             bck_foundedYearInput,
             bck_statusInput,
-            in_bck_add_company_modal
+            
+            footer = tagList(
+               in_bck_add_company_modal,
+               modalButton("Dismiss")
+            )
          )
       )
    })
@@ -419,69 +781,255 @@ server_app = function(input, output, session) {
       status = input$statusInput
       
       # Insert a new row into the my_companies table
-      dbExecute(connn, "INSERT INTO my_companies (company_id, company_name, industry, market, headquarters, founded_year, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                list(company_id, company_name, industry, market, headquarters, founded_year, status))
+      dbExecute(connn, insert_newcompany_query,
+                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
 
       removeModal()
    })
    
-   trial_add = eventReactive(input$bck_addCompanyBtn, {
-      
-      company_id = input$companySymbolInput
-      company_name = input$companyNameInput
-      industry = input$industryInput
-      market = input$MarketInput
-      headquarters = input$headquartersInput
-      founded_year = input$foundedYearInput
-      status = input$statusInput
-      
-      return(data.table(company_id, company_name, industry, market, headquarters, founded_year, status))
    
+   
+   ### Delete company --------------------------------------------------------
+   
+   observeEvent(input$bck_delete_company, {
+      
+      showModal(
+         modalDialog(
+            title = 'Delete Permanently?',
+            'All the information regarding this company will be deleted permanently.',
+            footer = tagList(
+               actionButton("bck_delete", "Delete", class = 'btn-danger'), 
+               modalButton("Dismiss")
+            )
+         ))
       })
-   
-   output$texto2 = renderTable({
-      trial_add()
+      
+      observeEvent(input$bck_delete, {
+      
+         delete_mycompanies = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
+         delete_historicaldata = paste0("DELETE FROM historical_price WHERE (company_id = '", input$bck_select_list, "');")
+         delete_financialdata = paste0("DELETE FROM financial_statements WHERE (company_id = '", input$bck_select_list, "');")
+         
+         dbExecute(connn, delete_mycompanies)
+         dbExecute(connn, delete_historicaldata)
+         dbExecute(connn, delete_financialdata)
+         
+         removeModal()
    })
    
-   data = data.frame(
-      ID = 1:1000,
-      SKU_Number = paste0("SKU ", 1:1000),
-      Actions = rep(c("Updated", "Initialized"), times = 20),
-      Registered = as.Date("2023/1/1")
-   )
    
-   output$bck_table_trialdb = renderReactable({
-      # Create a reactable table with enhanced features
-      reactable(
-         data,
-         columns = list(
-            ID = colDef(name = "ID"),
-            SKU_Number = colDef(name = "SKU_Number"),
-            Actions = colDef(
-               name = "Actions",
-               cell = button_extra("button", class = "btn btn-primary")
-            ),
-            Registered = colDef(
-               cell = date_extra("Registered", class = "date-extra")
+      ### Edit Company --------------------------------------------------------
+      
+      observeEvent(input$bck_edit_company, {
+         showModal(
+            modalDialog(
+               id = "bck_edit_company_2",
+               title = "Edit Company",
+               bck_edit_companySymbolInput,
+               bck_edit_companyNameInput,
+               bck_edit_industryInput,
+               bck_edit_marketInput,
+               bck_edit_headquartersInput,
+               bck_edit_foundedYearInput,
+               bck_edit_statusInput,
+               
+               footer = tagList(
+                  in_bck_edit_company_modal,
+                  modalButton("Dismiss")
+               )
             )
+         )
+      })
+      
+      ### Update selector
+      dt_con_companies_edit = reactive({
+
+         DTW = copy(dt_con_companies())
+         DTS = DTW[company_id == input$bck_select_list]
+         
+         return(DTS)
+         
+      })
+      
+      observeEvent(input$bck_edit_company, {
+         
+         DT = dt_con_companies_edit()
+         updateTextInput(session, 'edit_companySymbolInput', value = unique(DT$company_id))
+         updateTextInput(session, 'edit_companyNameInput', value = unique(DT$company_name))
+         updateSelectInput(session, 'edit_industryInput', choices = unique(DT$industry))
+         updateSelectInput(session, 'edit_marketInput', choices = unique(DT$market))
+         updateTextInput(session, 'edit_headquartersInput', value = unique(DT$headquarters))
+         updateNumericInput(session, 'edit_foundedYearInput', value = unique(DT$founded_year))
+         updateSelectInput(session, 'edit_statusInput', choices = unique(DT$status))
+         
+      })
+      
+      observeEvent(input$edit_bck_addCompanyBtn, {
+         # Retrieve values from inputs
+         company_id = input$edit_companySymbolInput
+         company_name = input$edit_companyNameInput
+         industry = input$edit_industryInput
+         market = input$edit_marketInput
+         headquarters = input$edit_headquartersInput
+         founded_year = input$edit_foundedYearInput
+         status = input$edit_statusInput
+         
+         # Insert a new row into the my_companies table
+         dbExecute(connn, update_newcompany_query,
+                   list(company_name, industry, market, headquarters, founded_year, status, company_id))
+         
+         removeModal()
+      })   
+   
+    
+   output$bck_table_db = renderReactable({
+      
+      dtw = dt_con_companies()
+      dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
+      dtw[, financial_data := fifelse(financial_data == 1, 'View Data', 'No Data')]
+      dtw[, ratios_data := fifelse(ratios_data == 1, 'View Data', 'No Data')]
+      dtw[, id := NULL]
+      
+      reactable(
+         dtw,
+         highlight = TRUE,
+         filterable = TRUE,
+         outlined = FALSE,
+         compact = TRUE,
+         wrap = FALSE,
+         defaultPageSize = 20,
+         columns = list(
+            company_id = colDef(name = "ID"),
+            company_name = colDef(name = "Name"),
+            industry = colDef(name = "Industry"),
+            market = colDef(name = "Market"),
+            headquarters = colDef(name = "HQ"),
+            founded_year = colDef(name = "Founded"),
+            status = colDef(name = "Status"),
+            historical_data = colDef(name = "Historical", cell = button_extra("bck_button_table_hc", class = "btn btn-primary")),
+            historical_data_update = colDef(name = "Last update"),
+            financial_data = colDef(name = "Financial", cell = button_extra("bck_button_table_fd", class = "btn btn-primary")),
+            financial_data_update = colDef(name = "Last update"),
+            ratios_data = colDef(name = "Ratios", cell = button_extra("bck_button_table_rt", class = "btn btn-primary")),
+            ratios_data_update = colDef(name = "Last update")
          )
       )
    })
    
-   observeEvent(input$button, {
+   
+   dt_con_id_hc = reactive({
+      
+      company_id = dt_con_companies()[input$bck_button_table_hc$row, ]$company_id
+      company_id
+      
+   })
+   
+   dt_con_id_fd = reactive({
+      
+      company_id = dt_con_companies()[input$bck_button_table_fd$row, ]$company_id
+      company_id
+      
+   })
+   
+   
+   dt_con_historicaldata_table = reactive({
+      dt_con_historicaldata()[company_id == dt_con_id_hc()]
+   })
+   
+   dt_con_financialdata_table = reactive({
+      dt_con_financialdata()[company_id == dt_con_id_fd()]
+   })   
+   
+   ### Download Company Historical Data
+   output$bck_button_downloadPrice = downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-price-', dt_con_id_hc(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_historicaldata_table(), file)
+      }
+   )
+   
+   output$bck_button_downloadFinancial = downloadHandler(
+      
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-financials-', dt_con_id_fd(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_financialdata_table(), file)
+      }
+   )   
+   
+   observeEvent(input$bck_button_table_hc, {
       showModal(modalDialog(
          title = "Selected row data",
-         reactable(data[input$button$row, ])
+            
+         if(!is.null(dt_con_historicaldata_table())) {
+            reactable(dt_con_historicaldata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
+         
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
+            modalButton("Dismiss")
+         )
+         
       ))
    })
    
+   observeEvent(input$bck_button_table_fd, {
+      showModal(modalDialog(
+         title = "Selected row data",
+         
+         if(!is.null(dt_con_financialdata_table())) {
+            reactable(dt_con_financialdata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
+         
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
+            modalButton("Dismiss")
+         )
+         
+      ))
+   })   
    
    ## END --------------
    
-   output$texto = renderTable({
-
-      dt_connn
-      
-   })
+   
+   # output$texto3 = renderTable({
+   #    dt_con_historicaldata_table()
+   # })
+   
+   
+   # output$texto = renderTable({
+   # 
+   #    # rv_conditions$results
+   #    data.table(hd = historical_data_list$available,
+   #               fd = financial_data_list$available,
+   #               state_hd = tickers_data_available$tickers_hd,
+   #               state_fd = tickers_data_available$tickers_fd
+   #    )
+   # 
+   # })
   
 }
