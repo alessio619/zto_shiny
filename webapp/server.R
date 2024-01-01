@@ -87,9 +87,25 @@ server_app = function(input, output, session) {
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
       req(ticker_list())
       
-      dt_sym_wk = fetch_tickers(TICKERS = ticker_list(),
-                                INIT_DATE = input$exp_dateRange[1],
-                                END_DATE = input$exp_dateRange[2])
+      tryCatch({
+         
+         dt_sym_wk = fetch_tickers(TICKERS = ticker_list(),
+                                   INIT_DATE = input$exp_dateRange[1],
+                                   END_DATE = input$exp_dateRange[2])
+         
+      }, error = function(e) {
+         dt_sym_wk = data.table(
+                        tickers = 'ERROR',
+                        index = 'ERROR',
+                        open = 'ERROR',
+                        high = 'ERROR',
+                        low = 'ERROR',
+                        close = 'ERROR',
+                        volume = 'ERROR',
+                        adjusted = 'ERROR'
+                        )
+      }
+      )
       
       return(dt_sym_wk)
       
@@ -97,6 +113,8 @@ server_app = function(input, output, session) {
    
 
    observe({
+      
+      req(dt_fetchedTickers())
       
       historical_data_list$available = unique(dt_fetchedTickers()$ticker)
       
@@ -107,6 +125,7 @@ server_app = function(input, output, session) {
       
       req(dt_fetchedTickers())
       
+      tryCatch({
       dtw = dt_fetchedTickers()
       
       xtw = calc_agg(DT = dtw)
@@ -155,7 +174,13 @@ server_app = function(input, output, session) {
          dts$index = indexx
          dts = melt(dts, id.vars = 'index', variable.name = 'ticker', value.name = 'value')
          dts[, value := round(value, digits = 2)]
-         } 
+      } 
+      
+      }, error = function(e){
+         
+         dts = data.table(STH = NA_character_)
+         
+      })
       
       return(dts)
       
@@ -295,7 +320,14 @@ server_app = function(input, output, session) {
       
       w$show()
       
-      list_ticker = get_statements(ticker_list())
+      tryCatch({
+         
+         list_ticker = get_statements(ticker_list())
+         
+      }, error = function(e) {
+         print('sth')
+      })
+      
       
       on.exit({
          w$hide()
@@ -307,6 +339,7 @@ server_app = function(input, output, session) {
    
    observe({
       
+      req(dt_fetchedFinancials())
       financial_data_list$available = unique(names(dt_fetchedFinancials()))
       
    })
@@ -1021,15 +1054,10 @@ server_app = function(input, output, session) {
    # })
    
    
-   # output$texto = renderTable({
-   # 
-   #    # rv_conditions$results
-   #    data.table(hd = historical_data_list$available,
-   #               fd = financial_data_list$available,
-   #               state_hd = tickers_data_available$tickers_hd,
-   #               state_fd = tickers_data_available$tickers_fd
-   #    )
-   # 
-   # })
+   output$texto = renderTable({
+
+      dt_fetchedFinancials()
+
+   })
   
 }
