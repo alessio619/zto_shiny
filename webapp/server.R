@@ -984,93 +984,93 @@ server_app = function(input, output, session) {
       
    })
    
-   
+
    dt_con_historicaldata_table = reactive({
       dt_con_historicaldata()[company_id == dt_con_id_hc()]
    })
-   
-   dt_con_financialdata_table = reactive({
-      dt_con_financialdata()[company_id == dt_con_id_fd()]
-   })   
-   
-   ### Download Company Historical Data
-   output$bck_button_downloadPrice = downloadHandler(
-      
-      filename = function() {
-         # Use the selected dataset as the suggested file name
-         paste0('dataset-price-', dt_con_id_hc(), ".csv")
-      },
-      content = function(file) {
-         # Write the dataset to the `file` that will be downloaded
-         write.csv(dt_con_historicaldata_table(), file)
-      }
-   )
-   
-   output$bck_button_downloadFinancial = downloadHandler(
-      
-      filename = function() {
-         # Use the selected dataset as the suggested file name
-         paste0('dataset-financials-', dt_con_id_fd(), ".csv")
-      },
-      content = function(file) {
-         # Write the dataset to the `file` that will be downloaded
-         write.csv(dt_con_financialdata_table(), file)
-      }
-   )   
-   
-   observeEvent(input$bck_button_table_hc, {
-      showModal(modalDialog(
-         title = "Selected row data",
-            
-         if(!is.null(dt_con_historicaldata_table())) {
-            reactable(dt_con_historicaldata_table(),
-                      highlight = TRUE,
-                      filterable = TRUE,
-                      outlined = FALSE,
-                      compact = TRUE,
-                      wrap = FALSE,
-                      defaultPageSize = 20)
-            },
-         
-         size = 'l',
-         easyClose = TRUE,
-         footer = tagList(
-            if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
-            modalButton("Dismiss")
-         )
-         
-      ))
-   })
-   
-   observeEvent(input$bck_button_table_fd, {
-      showModal(modalDialog(
-         title = "Selected row data",
-         
-         if(!is.null(dt_con_financialdata_table())) {
-            reactable(dt_con_financialdata_table(),
-                      highlight = TRUE,
-                      filterable = TRUE,
-                      outlined = FALSE,
-                      compact = TRUE,
-                      wrap = FALSE,
-                      defaultPageSize = 20)
-            },
-         
-         size = 'l',
-         easyClose = TRUE,
-         footer = tagList(
-            if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
-            modalButton("Dismiss")
-         )
-         
-      ))
-   })   
-   
+
+   # dt_con_financialdata_table = reactive({
+   #    dt_con_financialdata()[company_id == dt_con_id_fd()]
+   # })   
+   # 
+   # ### Download Company Historical Data
+   # output$bck_button_downloadPrice = downloadHandler(
+   #    
+   #    filename = function() {
+   #       # Use the selected dataset as the suggested file name
+   #       paste0('dataset-price-', dt_con_id_hc(), ".csv")
+   #    },
+   #    content = function(file) {
+   #       # Write the dataset to the `file` that will be downloaded
+   #       write.csv(dt_con_historicaldata_table(), file)
+   #    }
+   # )
+   # 
+   # output$bck_button_downloadFinancial = downloadHandler(
+   #    
+   #    filename = function() {
+   #       # Use the selected dataset as the suggested file name
+   #       paste0('dataset-financials-', dt_con_id_fd(), ".csv")
+   #    },
+   #    content = function(file) {
+   #       # Write the dataset to the `file` that will be downloaded
+   #       write.csv(dt_con_financialdata_table(), file)
+   #    }
+   # )   
+   # 
+   # observeEvent(input$bck_button_table_hc, {
+   #    showModal(modalDialog(
+   #       title = "Selected row data",
+   #          
+   #       if(!is.null(dt_con_historicaldata_table())) {
+   #          reactable(dt_con_historicaldata_table(),
+   #                    highlight = TRUE,
+   #                    filterable = TRUE,
+   #                    outlined = FALSE,
+   #                    compact = TRUE,
+   #                    wrap = FALSE,
+   #                    defaultPageSize = 20)
+   #          },
+   #       
+   #       size = 'l',
+   #       easyClose = TRUE,
+   #       footer = tagList(
+   #          if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
+   #          modalButton("Dismiss")
+   #       )
+   #       
+   #    ))
+   # })
+   # 
+   # observeEvent(input$bck_button_table_fd, {
+   #    showModal(modalDialog(
+   #       title = "Selected row data",
+   #       
+   #       if(!is.null(dt_con_financialdata_table())) {
+   #          reactable(dt_con_financialdata_table(),
+   #                    highlight = TRUE,
+   #                    filterable = TRUE,
+   #                    outlined = FALSE,
+   #                    compact = TRUE,
+   #                    wrap = FALSE,
+   #                    defaultPageSize = 20)
+   #          },
+   #       
+   #       size = 'l',
+   #       easyClose = TRUE,
+   #       footer = tagList(
+   #          if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
+   #          modalButton("Dismiss")
+   #       )
+   #       
+   #    ))
+   # })   
+   # 
    ## END --------------
    
    
    output$texto3 = renderTable({
-      dt_trial()
+      dt_con_historicaldata_table()
    })
    
    
