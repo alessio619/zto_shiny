@@ -308,42 +308,42 @@ in_bck_add_company_modal =
 
 bck_companySymbolInput =
    textInput(
-      inputId = "companySymbolInput", 
+      inputId = "bck_companySymbolInput", 
       label = span('Company ID', style = 'color: #4C6279; font-weight: bold;'),
       width = '100%')
 
 bck_companyNameInput =
    textInput(
-      inputId = "companyNameInput", 
+      inputId = "bck_companyNameInput", 
       label = span('Company Name', style = 'color: #4C6279; font-weight: bold;'),
       width = '100%')
 
 bck_industryInput =
    selectInput(
-      inputId = "industryInput", 
+      inputId = "bck_industryInput", 
       label = span('Industry', style = 'color: #4C6279; font-weight: bold;'), choices = c("Technology", "Finance", "Other"),
       width = '100%')
 
 bck_marketInput = 
    selectInput(
-      inputId = "marketInput", 
+      inputId = "bck_marketInput", 
       label = span('Market', style = 'color: #4C6279; font-weight: bold;'), choices = c("EURONEXT.G.MI", "NASDAQ", "NYSE"),
       width = '100%')
 
 bck_headquartersInput = 
    textInput(
-      inputId = "headquartersInput", 
+      inputId = "bck_headquartersInput", 
       label = span('Headquarters', style = 'color: #4C6279; font-weight: bold;'),
       width = '100%')
 
 bck_foundedYearInput = 
-   numericInput("foundedYearInput", 
+   numericInput("bck_foundedYearInput", 
                 label = span('Founded Year', style = 'color: #4C6279; font-weight: bold;'), value = 2000, min = 1800, max = 2023,
                 width = '100%')
 
 bck_statusInput = 
    selectInput(
-      inputId = "statusInput", 
+      inputId = "bck_statusInput", 
       label = span('Status', style = 'color: #4C6279; font-weight: bold;'), choices = c("Active", "Inactive", "Pending"),
       width = '100%')
 
