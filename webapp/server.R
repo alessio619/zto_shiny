@@ -439,7 +439,9 @@ server_app = function(input, output, session) {
    observeEvent(input$exp_addCompanyBtn, {
       # Retrieve values from inputs
       
-      dt_database_mc = data.table(
+      dt_database_mc = dt_con_companies()
+      
+      new_data_mc = data.table(
          company_id = input$exp_companySymbolInput,
          company_name = input$exp_companyNameInput,
          industry = input$exp_industryInput,
@@ -447,19 +449,22 @@ server_app = function(input, output, session) {
          headquarters = input$exp_headquartersInput,
          founded_year = input$exp_foundedYearInput,
          status = input$exp_statusInput,
-         historical_data =  NA_integer_,
+         historical_data =  0,
          historical_data_update =  NA_character_,
-         financial_data =  NA_integer_,
+         financial_data =  0,
          financial_data_update =  NA_character_,
-         ratios_data =  NA_integer_,
+         ratios_data =  0,
          ratios_data_update =  NA_character_
       )
       
       w$show()
       
       # Insert a new row into the my_companies table
-      dbExecute(connn, insert_newcompany_query,
-                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
+      dt_database_mc = rbind(dt_database_mc, new_data_mc)
+      dt_database_mc = dt_database_mc[!is.na(dt_database_mc$company_id)]
+      
+      #### Export
+      saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
       
       if(input$exp_data2add == 'exp_add_data_market') {
          
