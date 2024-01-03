@@ -463,64 +463,70 @@ server_app = function(input, output, session) {
       dt_database_mc = rbind(dt_database_mc, new_data_mc)
       dt_database_mc = dt_database_mc[!is.na(dt_database_mc$company_id)]
       
+      #### Update date on my_companies
+      dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
+      dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 1
+      
       #### Export
       saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
       
-      if(input$exp_data2add == 'exp_add_data_market') {
-         
-         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
-         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
-         
-         dbExecute(connn, insert_newhistoricaldata_query,
-                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
-         
-         dbExecute(connn, update_historical_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
-         
-         showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
-         
-         } else if(input$exp_data2add == 'exp_add_data_financial') {
-            
-         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-         dtw[, id := .I]
-         dtw[, date := as.character(Sys.Date())]
-         
-         dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
-         
-         dbExecute(connn, update_financial_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
-         
-         showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
-         
-         
-      } else if(input$exp_data2add == 'exp_add_data_both') {
-
-         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
-         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
-         
-         dbExecute(connn, insert_newhistoricaldata_query,
-                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
-         
-         dbExecute(connn, update_historical_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
-         
-         
-         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-         dtw[, id := .I]
-         dtw[, date := as.character(Sys.Date())]
-         
-         dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
-         
-         dbExecute(connn, update_financial_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
-         
-         showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
-         
-      }
-      
-      dbExecute(connn, update_availabledata_query)
+      # if(input$exp_data2add == 'exp_add_data_market') {
+      #    
+      #    new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+      #    new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+      #    
+      #    dbExecute(connn, insert_newhistoricaldata_query,
+      #              list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+      #    
+      #    dbExecute(connn, update_historical_data_date_query,
+      #              list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      #    
+      #    showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
+      #    
+      #    } else if(input$exp_data2add == 'exp_add_data_financial') {
+      #       
+      #    dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+      #    dtw[, id := .I]
+      #    dtw[, date := as.character(Sys.Date())]
+      #    
+      #    dbExecute(connn, insert_newfinancialdata_query,
+      #              list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+      #    
+      #    dbExecute(connn, update_financial_data_date_query,
+      #              list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      #    
+      #    showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+      #    
+      #    
+      # } else if(input$exp_data2add == 'exp_add_data_both') {
+      # 
+      #    new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+      #    new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+      #    
+      #    dbExecute(connn, insert_newhistoricaldata_query,
+      #              list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+      #    
+      #    dbExecute(connn, update_historical_data_date_query,
+      #              list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      #    
+      #    
+      #    dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+      #    dtw[, id := .I]
+      #    dtw[, date := as.character(Sys.Date())]
+      #    
+      #    dbExecute(connn, insert_newfinancialdata_query,
+      #              list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+      #    
+      #    dbExecute(connn, update_financial_data_date_query,
+      #              list(as.character(Sys.Date()), input$exp_select_AddCompany))
+      #    
+      #    showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+      #    
+      # } else {
+      #    
+      #    print('None')
+      #    
+      # }
       
       on.exit({
          w$hide()
