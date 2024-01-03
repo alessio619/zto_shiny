@@ -5,7 +5,9 @@ server_app = function(input, output, session) {
    
    ## 01_explorer --------------------------------------------------------
    
-   ### get ticker list -------------------
+   ### A. Retrieve Data --------------------------------------------------------
+   
+   ### Select ticker list -------------------
    tickers_full_list = eventReactive(input$exp_select_list, {
       engm_equities_lista = NULL  # Initialize outside the conditions
       
@@ -59,7 +61,7 @@ server_app = function(input, output, session) {
    
    
    
-   ### Find TICKERS from NAMES
+   ### Find Tickers from Names -----
    ticker_list = eventReactive(input$exp_button_fetchTickers | input$exp_button_fetchFinancials, {
 
       req(tickers_full_list())
@@ -81,7 +83,8 @@ server_app = function(input, output, session) {
    })   
    
    
-   ### Fetch Market data ---------------------------------------------------------
+   
+   ###  Historical Price ---------------------------------------------------------
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
@@ -102,7 +105,7 @@ server_app = function(input, output, session) {
       
    })
       
-   ### Calculations on Tickers:
+   ### Calculations from HP --------
    dt_tickersAgg = reactive({
       
       req(dt_fetchedTickers())
@@ -169,7 +172,7 @@ server_app = function(input, output, session) {
       )
    })
    
-   ### Calculation Value Boxes
+   ### Value boxes HP --------
    output$calc_max_value = renderText({
       req(dt_tickersAgg())
       round(max(dt_tickersAgg()[ticker == input$exp_select_ticker_boxes]$value, na.rm = TRUE), digits = 2)
@@ -191,7 +194,7 @@ server_app = function(input, output, session) {
    })   
    
    
-   ### Plot Tickers Data
+   ### Plot HP -------------
    output$exp_plot_tickersSeries = renderHighchart({
      
       req(dt_tickersAgg())
@@ -207,7 +210,7 @@ server_app = function(input, output, session) {
   })
    
    
-   ### Calculations Tickers Data.table:
+   ### Calculations HP -------------
    dt_tickersTable = reactive({
       
       req(dt_fetchedTickers())
@@ -239,7 +242,7 @@ server_app = function(input, output, session) {
       
    })
    
-   ### Table Retrieved companies historical data
+   ### Table HP -------------
    output$exp_table_tickersSeries = renderReactable({
       
       req(dt_tickersTable())
@@ -261,7 +264,7 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Download Tickers Data
+   ### Download HP ---------
    output$exp_button_downloadPrice = downloadHandler(
       
       filename = function() {
@@ -276,7 +279,7 @@ server_app = function(input, output, session) {
    
    
    
-   ### Fetch Financial data ---------------------------------------------------------
+   ### Fetch Financial Data ---------------------------------------------------------
    
    w = Waiter$new(
       html = spin_3(),
@@ -325,7 +328,7 @@ server_app = function(input, output, session) {
    })   
    
    
-   ### Table Retrieved companies data
+   ### Table FD ---------
    dt_table_tickersFinancials = reactive({
       
       req(dt_fetchedFinancials())
@@ -371,7 +374,7 @@ server_app = function(input, output, session) {
       
    })
    
-   ### Download Tickers Data
+   ### Download FD ---------
    output$exp_button_downloadFinancials= downloadHandler(
       
       filename = function() {
@@ -385,7 +388,7 @@ server_app = function(input, output, session) {
    ) 
    
    
-   ### Follow / Add company --------------------------------------------------------
+   ### B. Add company --------------------------------------------------------
    
    
    observeEvent(input$exp_add_company, {
@@ -430,15 +433,27 @@ server_app = function(input, output, session) {
       } 
    })
    
+   
+   ### New company data ---------
+   
    observeEvent(input$exp_addCompanyBtn, {
       # Retrieve values from inputs
-      company_id = input$exp_companySymbolInput
-      company_name = input$exp_companyNameInput
-      industry = input$exp_industryInput
-      market = input$exp_marketInput
-      headquarters = input$exp_headquartersInput
-      founded_year = input$exp_foundedYearInput
-      status = input$exp_statusInput
+      
+      dt_database_mc = data.table(
+         company_id = input$exp_companySymbolInput,
+         company_name = input$exp_companyNameInput,
+         industry = input$exp_industryInput,
+         market = input$exp_marketInput,
+         headquarters = input$exp_headquartersInput,
+         founded_year = input$exp_foundedYearInput,
+         status = input$exp_statusInput,
+         historical_data =  NA_integer_,
+         historical_data_update =  NA_character_,
+         financial_data =  NA_integer_,
+         financial_data_update =  NA_character_,
+         ratios_data =  NA_integer_,
+         ratios_data_update =  NA_character_
+      )
       
       w$show()
       
@@ -703,22 +718,22 @@ server_app = function(input, output, session) {
    ### Load DB
    dt_con_companies = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
-      dt_con = data.table::data.table(dbReadTable(connn, "my_companies"))
-      return(dt_con)
+      dt_database_mc = readRDS(file = file.path('data', 'zto_database_my_companies.rds'))
+      return(dt_database_mc)
       
    })
    
    dt_con_historicaldata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
-      dt_con = data.table::data.table(dbReadTable(connn, "historical_price"))
-      return(dt_con)
+      dt_database_hp = readRDS(file = file.path('data', 'zto_database_historical_price.rds'))
+      return(dt_database_mc)
       
    })   
    
    dt_con_financialdata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
-      dt_con = data.table::data.table(dbReadTable(connn, "financial_statements"))
-      return(dt_con)
+      dt_database_fd = readRDS(file = file.path('data', 'zto_database_financial_data.rds'))
+      return(dt_database_mc)
       
    })      
    
@@ -744,7 +759,7 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Manual Add company --------------------------------------------------------
+   ### New Company records --------------------------------------------------------
    observeEvent(input$bck_add_company, {
       
       showModal(
@@ -767,21 +782,60 @@ server_app = function(input, output, session) {
       )
    })
    
+   
+   dt_trial = eventReactive(input$bck_addCompanyBtn, {
+      
+      dt_database_mc = dt_con_companies()
+      
+      new_data_mc = data.table(
+         company_id = input$bck_companySymbolInput,
+         company_name = input$bck_companyNameInput,
+         industry = input$bck_industryInput,
+         market = input$bck_marketInput,
+         headquarters = input$bck_headquartersInput,
+         founded_year = input$bck_foundedYearInput,
+         status = input$bck_statusInput,
+         historical_data =  NA_integer_,
+         historical_data_update =  NA_character_,
+         financial_data =  NA_integer_,
+         financial_data_update =  NA_character_,
+         ratios_data =  NA_integer_,
+         ratios_data_update =  NA_character_
+      )
+      
+      return(new_data_mc)
+      
+   })
+   
    observeEvent(input$bck_addCompanyBtn, {
-      # Retrieve values from inputs
-      company_id = input$companySymbolInput
-      company_name = input$companyNameInput
-      industry = input$industryInput
-      market = input$marketInput
-      headquarters = input$headquartersInput
-      founded_year = input$foundedYearInput
-      status = input$statusInput
+      
+      dt_database_mc = dt_con_companies()
+      
+      new_data_mc = data.table(
+         company_id = input$bck_companySymbolInput,
+         company_name = input$bck_companyNameInput,
+         industry = input$bck_industryInput,
+         market = input$bck_marketInput,
+         headquarters = input$bck_headquartersInput,
+         founded_year = input$bck_foundedYearInput,
+         status = input$bck_statusInput,
+         historical_data =  0,
+         historical_data_update =  NA_character_,
+         financial_data =  0,
+         financial_data_update =  NA_character_,
+         ratios_data =  0,
+         ratios_data_update =  NA_character_
+      )
       
       # Insert a new row into the my_companies table
-      dbExecute(connn, insert_newcompany_query,
-                list(company_id, company_name, industry, market, headquarters, founded_year, status, 0, NA_character_, 0, NA_character_, 0, NA_character_))
-
+      dt_database_mc = rbind(dt_database_mc, new_data_mc)
+      dt_database_mc = dt_database_mc[!is.na(dt_database_mc$company_id)]
+      
+      #### Export
+      saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
+      
       removeModal()
+      
    })
    
    
@@ -802,14 +856,20 @@ server_app = function(input, output, session) {
       })
       
       observeEvent(input$bck_delete, {
-      
-         delete_mycompanies = paste0("DELETE FROM my_companies WHERE (company_id = '", input$bck_select_list, "');")
-         delete_historicaldata = paste0("DELETE FROM historical_price WHERE (company_id = '", input$bck_select_list, "');")
-         delete_financialdata = paste0("DELETE FROM financial_statements WHERE (company_id = '", input$bck_select_list, "');")
          
-         dbExecute(connn, delete_mycompanies)
-         dbExecute(connn, delete_historicaldata)
-         dbExecute(connn, delete_financialdata)
+         dt_database_mc = dt_con_companies()
+         dt_database_hp = dt_con_historicaldata()
+         dt_database_fd = dt_con_financialdata()
+      
+         #### Remove records
+         dt_database_mc = dt_database_mc[!company_id %in% input$bck_select_list]
+         dt_database_hp = dt_database_hp[!company_id %in% input$bck_select_list]
+         dt_database_fd = dt_database_fd[!company_id %in% input$bck_select_list]
+
+         #### Export
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
+         saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
+         saveRDS(dt_database_fd, file = file.path('data', 'zto_database_financial_data.rds'))
          
          removeModal()
    })
@@ -885,7 +945,6 @@ server_app = function(input, output, session) {
       dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
       dtw[, financial_data := fifelse(financial_data == 1, 'View Data', 'No Data')]
       dtw[, ratios_data := fifelse(ratios_data == 1, 'View Data', 'No Data')]
-      dtw[, id := NULL]
       
       reactable(
          dtw,
@@ -1013,9 +1072,9 @@ server_app = function(input, output, session) {
    ## END --------------
    
    
-   # output$texto3 = renderTable({
-   #    dt_con_historicaldata_table()
-   # })
+   output$texto3 = renderTable({
+      dt_trial()
+   })
    
    
    # output$texto = renderTable({
