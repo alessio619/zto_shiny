@@ -795,7 +795,7 @@ server_app = function(input, output, session) {
             title = 'Delete Permanently?',
             'All the information regarding this company will be deleted permanently.',
             footer = tagList(
-               actionButton("bck_delete", "Delete", class = 'btn-danger'), 
+               actionButton("bck_delete", label = "Delete", icon = shiny::icon("xmark"), class = 'btn-danger'), 
                modalButton("Dismiss")
             )
          ))
