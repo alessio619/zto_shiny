@@ -88,11 +88,18 @@ server_app = function(input, output, session) {
    
    ### Fetch and Retrieve Tickers Data
    dt_fetchedTickers = eventReactive(input$exp_button_fetchTickers, {
+      
       req(ticker_list())
+      
+      w$show()
       
       dt_sym_wk = fetch_tickers(TICKERS = ticker_list(),
                                 INIT_DATE = input$exp_dateRange[1],
                                 END_DATE = input$exp_dateRange[2])
+      
+      on.exit({
+         w$hide()
+      })
       
       return(dt_sym_wk)
       
@@ -449,11 +456,11 @@ server_app = function(input, output, session) {
          headquarters = input$exp_headquartersInput,
          founded_year = input$exp_foundedYearInput,
          status = input$exp_statusInput,
-         historical_data =  0,
+         historical_data =  'No Data',
          historical_data_update =  NA_character_,
-         financial_data =  0,
+         financial_data =  'No Data',
          financial_data_update =  NA_character_,
-         ratios_data =  0,
+         ratios_data =  'No Data',
          ratios_data_update =  NA_character_
       )
       
@@ -463,10 +470,6 @@ server_app = function(input, output, session) {
       dt_database_mc = rbind(dt_database_mc, new_data_mc)
       dt_database_mc = dt_database_mc[!is.na(dt_database_mc$company_id)]
       
-      #### Update date on my_companies
-      dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
-      dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 1
-      
       #### Export
       saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
       
@@ -475,7 +478,7 @@ server_app = function(input, output, session) {
          dt_database_hp = dt_con_historicaldata()
 
          #### Prepare data
-         new_records_hp = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
+         new_records_hp = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
          new_records_hp = new_records_hp[, .(company_id = ticker, index = as.character(index), closing = round(adjusted, 2), volume = round(volume, 2))]
          
          #### Add the data to the DB
@@ -484,7 +487,7 @@ server_app = function(input, output, session) {
          
          #### Update date on my_companies
          dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
-         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 1
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 'View Data'
          
          #### Export
          saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
@@ -493,48 +496,72 @@ server_app = function(input, output, session) {
          showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
 
          } else if(input$exp_data2add == 'exp_add_data_financial') {
+            
+         dt_database_fd = dt_con_financialdata()
 
-         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-         dtw[, id := .I]
-         dtw[, date := as.character(Sys.Date())]
+         #### Prepare data
+         new_records_fd = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         new_records_fd[, index := as.character(Sys.Date())]
+         
+         #### Add the data to the DB
+         dt_database_fd = rbind(dt_database_fd, new_records_fd)
+         dt_database_fd = dt_database_fd[!is.na(dt_database_fd$company_id)]
+         
+         #### Update date on my_companies
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data_update = as.character(Sys.Date())
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data = 'View Data'
+         
+         #### Export
+         saveRDS(dt_database_fd, file = file.path('data', 'zto_database_financial_data.rds'))
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
 
-         dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
-
-         dbExecute(connn, update_financial_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
 
          showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
 
 
       } else if(input$exp_data2add == 'exp_add_data_both') {
 
-         new_records = dt_fetchedTickers()[ticker %in% input$exp_select_AddCompany]
-         new_records = new_records[, .(company_id = ticker, date = as.Date(index), closing_price = adjusted, volume = volume)]
+         dt_database_hp = dt_con_historicaldata()
+         
+         #### Prepare data
+         new_records_hp = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
+         new_records_hp = new_records_hp[, .(company_id = ticker, index = as.character(index), closing = round(adjusted, 2), volume = round(volume, 2))]
+         
+         #### Add the data to the DB
+         dt_database_hp = rbind(dt_database_hp, new_records_hp)
+         dt_database_hp = dt_database_hp[!is.na(dt_database_hp$company_id)]
+         
+         #### Update date on my_companies
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 'View Data'
+         
+         #### Export
+         saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
 
-         dbExecute(connn, insert_newhistoricaldata_query,
-                   list(new_records$company_id, as.character(new_records$date), round(new_records$closing_price, 2), round(new_records$volume, 2)))
+         dt_database_fd = dt_con_financialdata()
+         
+         #### Prepare data
+         new_records_fd = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         new_records_fd[, index := as.character(Sys.Date())]
+         
+         #### Add the data to the DB
+         dt_database_fd = rbind(dt_database_fd, new_records_fd)
+         dt_database_fd = dt_database_fd[!is.na(dt_database_fd$company_id)]
+         
+         #### Update date on my_companies
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data_update = as.character(Sys.Date())
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data = 'View Data'
+         
+         #### Export
+         saveRDS(dt_database_fd, file = file.path('data', 'zto_database_financial_data.rds'))
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
 
-         dbExecute(connn, update_historical_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
-
-
-         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-         dtw[, id := .I]
-         dtw[, date := as.character(Sys.Date())]
-
-         dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
-
-         dbExecute(connn, update_financial_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
 
          showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
 
       } else {
-
          print('None')
-
       }
       
       on.exit({
@@ -542,6 +569,57 @@ server_app = function(input, output, session) {
       })
       
       removeModal()
+      
+   })
+   
+   
+   ### Add Data to company (if avaialable) -----
+   
+   historical_data_list = reactiveValues(available = c(NA))
+   financial_data_list = reactiveValues(available = c(NA))
+   
+   tickers_data_available = reactiveValues(tickers_hd = c(NA),
+                                           tickers_fd = c(NA))
+   
+   observe({
+      tickers_data_available$tickers_hd = historical_data_list$available
+      tickers_data_available$tickers_fd = financial_data_list$available
+   })
+   
+   observeEvent(input$exp_add_company, {
+      
+      req(ticker_list())
+      x = ticker_list()
+      x = x[input$exp_select_AddCompany == x]
+      if (is.null(x))
+         x = character(0)
+      
+      if(x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Market' = 'exp_add_data_market', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_market')
+         
+      } else if(!x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_financial')
+         
+      } else if(x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_both')
+         
+      } else {
+         
+         updateRadioButtons(session, 'exp_data2add',
+                            choices = c('None' = 'exp_add_data_none'),
+                            selected = 'exp_add_data_none')
+         
+      }
+      
       
    })
    
@@ -680,54 +758,6 @@ server_app = function(input, output, session) {
    })
    
    
-   ### Add Data to company (if avaialable) -----
-   
-   historical_data_list = reactiveValues(available = c(NA))
-   financial_data_list = reactiveValues(available = c(NA))
-   
-   tickers_data_available = reactiveValues(tickers_hd = c(NA),
-                                           tickers_fd = c(NA))
-   
-   observe({
-      tickers_data_available$tickers_hd = historical_data_list$available
-      tickers_data_available$tickers_fd = financial_data_list$available
-   })
-   
-   observeEvent(input$exp_add_company, {
-      
-      req(ticker_list())
-      x = ticker_list()
-      if (is.null(x))
-         x = character(0)
-      
-      if(tickers_data_available$tickers_hd %in% x && !tickers_data_available$tickers_fd %in% x) {
-         
-         updateRadioButtons(session, 'exp_data2add',
-                            choices = c('Market' = 'exp_add_data_market', 'None' = 'exp_add_data_none'),
-                            selected = 'exp_add_data_market')
-         
-      } else if(!tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
-         
-         updateRadioButtons(session, 'exp_data2add',
-                            choices = c('Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
-                            selected = 'exp_add_data_financial')
-         
-      } else if(tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
-         
-         updateRadioButtons(session, 'exp_data2add',
-                            choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
-                            selected = 'exp_add_data_both')
-         
-      } else {
-         
-         updateRadioButtons(session, 'exp_data2add',
-                            choices = c('None' = 'exp_add_data_none'),
-                            selected = 'exp_add_data_none')
-         
-      }
-      
-      
-   })
    
    
    # 02_analyze --------------------------------------------------------
@@ -815,11 +845,11 @@ server_app = function(input, output, session) {
          headquarters = input$bck_headquartersInput,
          founded_year = input$bck_foundedYearInput,
          status = input$bck_statusInput,
-         historical_data =  0,
+         historical_data =  'No Data',
          historical_data_update =  NA_character_,
-         financial_data =  0,
+         financial_data =  'No Data',
          financial_data_update =  NA_character_,
-         ratios_data =  0,
+         ratios_data =  'No Data',
          ratios_data_update =  NA_character_
       )
       
@@ -939,9 +969,6 @@ server_app = function(input, output, session) {
    output$bck_table_db = renderReactable({
       
       dtw = dt_con_companies()
-      dtw[, historical_data := fifelse(historical_data == 1, 'View Data', 'No Data')]
-      dtw[, financial_data := fifelse(financial_data == 1, 'View Data', 'No Data')]
-      dtw[, ratios_data := fifelse(ratios_data == 1, 'View Data', 'No Data')]
       
       reactable(
          dtw,
@@ -986,103 +1013,105 @@ server_app = function(input, output, session) {
    
 
    dt_con_historicaldata_table = reactive({
-      dt_con_historicaldata()[company_id == dt_con_id_hc()]
+      dt_con_historicaldata()[company_id %in% dt_con_id_hc()]
    })
 
-   # dt_con_financialdata_table = reactive({
-   #    dt_con_financialdata()[company_id == dt_con_id_fd()]
-   # })   
-   # 
-   # ### Download Company Historical Data
-   # output$bck_button_downloadPrice = downloadHandler(
-   #    
-   #    filename = function() {
-   #       # Use the selected dataset as the suggested file name
-   #       paste0('dataset-price-', dt_con_id_hc(), ".csv")
-   #    },
-   #    content = function(file) {
-   #       # Write the dataset to the `file` that will be downloaded
-   #       write.csv(dt_con_historicaldata_table(), file)
-   #    }
-   # )
-   # 
-   # output$bck_button_downloadFinancial = downloadHandler(
-   #    
-   #    filename = function() {
-   #       # Use the selected dataset as the suggested file name
-   #       paste0('dataset-financials-', dt_con_id_fd(), ".csv")
-   #    },
-   #    content = function(file) {
-   #       # Write the dataset to the `file` that will be downloaded
-   #       write.csv(dt_con_financialdata_table(), file)
-   #    }
-   # )   
-   # 
-   # observeEvent(input$bck_button_table_hc, {
-   #    showModal(modalDialog(
-   #       title = "Selected row data",
-   #          
-   #       if(!is.null(dt_con_historicaldata_table())) {
-   #          reactable(dt_con_historicaldata_table(),
-   #                    highlight = TRUE,
-   #                    filterable = TRUE,
-   #                    outlined = FALSE,
-   #                    compact = TRUE,
-   #                    wrap = FALSE,
-   #                    defaultPageSize = 20)
-   #          },
-   #       
-   #       size = 'l',
-   #       easyClose = TRUE,
-   #       footer = tagList(
-   #          if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
-   #          modalButton("Dismiss")
-   #       )
-   #       
-   #    ))
-   # })
-   # 
-   # observeEvent(input$bck_button_table_fd, {
-   #    showModal(modalDialog(
-   #       title = "Selected row data",
-   #       
-   #       if(!is.null(dt_con_financialdata_table())) {
-   #          reactable(dt_con_financialdata_table(),
-   #                    highlight = TRUE,
-   #                    filterable = TRUE,
-   #                    outlined = FALSE,
-   #                    compact = TRUE,
-   #                    wrap = FALSE,
-   #                    defaultPageSize = 20)
-   #          },
-   #       
-   #       size = 'l',
-   #       easyClose = TRUE,
-   #       footer = tagList(
-   #          if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
-   #          modalButton("Dismiss")
-   #       )
-   #       
-   #    ))
-   # })   
-   # 
+   dt_con_financialdata_table = reactive({
+      dt_con_financialdata()[company_id == dt_con_id_fd()]
+   })
+
+   ### Download Company Historical Data
+   output$bck_button_downloadPrice = downloadHandler(
+
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-price-', dt_con_id_hc(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_historicaldata_table(), file)
+      }
+   )
+
+   output$bck_button_downloadFinancial = downloadHandler(
+
+      filename = function() {
+         # Use the selected dataset as the suggested file name
+         paste0('dataset-financials-', dt_con_id_fd(), ".csv")
+      },
+      content = function(file) {
+         # Write the dataset to the `file` that will be downloaded
+         write.csv(dt_con_financialdata_table(), file)
+      }
+   )
+
+   observeEvent(input$bck_button_table_hc, {
+      showModal(modalDialog(
+         title = "Selected row data",
+
+         if(!is.null(dt_con_historicaldata_table())) {
+            reactable(dt_con_historicaldata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
+
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_historicaldata_table())) {in_bck_button_downloadPrice},
+            modalButton("Dismiss")
+         )
+
+      ))
+   })
+
+   observeEvent(input$bck_button_table_fd, {
+      showModal(modalDialog(
+         title = "Selected row data",
+
+         if(!is.null(dt_con_financialdata_table())) {
+            reactable(dt_con_financialdata_table(),
+                      highlight = TRUE,
+                      filterable = TRUE,
+                      outlined = FALSE,
+                      compact = TRUE,
+                      wrap = FALSE,
+                      defaultPageSize = 20)
+            },
+
+         size = 'l',
+         easyClose = TRUE,
+         footer = tagList(
+            if(!is.null(dt_con_financialdata_table())) {in_bck_button_downloadFinancial},
+            modalButton("Dismiss")
+         )
+
+      ))
+   })
+
    ## END --------------
    
    
-   output$texto3 = renderTable({
-      dt_con_historicaldata_table()
-   })
-   
-   
-   # output$texto = renderTable({
-   # 
-   #    # rv_conditions$results
-   #    data.table(hd = historical_data_list$available,
-   #               fd = financial_data_list$available,
-   #               state_hd = tickers_data_available$tickers_hd,
-   #               state_fd = tickers_data_available$tickers_fd
-   #    )
-   # 
+   # output$texto3 = renderTable({
+   #    dt_con_historicaldata_table()
    # })
+   
+
+   output$texto = renderPrint({
+
+      req(ticker_list())
+      x = ticker_list()
+      x = x[input$exp_select_AddCompany == x]
+      if (is.null(x))
+         x = character(0)
+
+
+      x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd
+
+   })
   
 }

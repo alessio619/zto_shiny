@@ -88,7 +88,11 @@ navbarPage(
    )), 
    
    tags$style(HTML(
-      '.bslib-sidebar-layout .sidebar-title {color: #4C6279;}'
+      '    #shiny-notification-panel {
+      top: 5px;
+      right: 5px;
+      left: auto;
+    }'
    )), 
    
    tags$style(HTML(
