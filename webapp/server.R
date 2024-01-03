@@ -737,14 +737,14 @@ server_app = function(input, output, session) {
    dt_con_historicaldata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
       dt_database_hp = readRDS(file = file.path('data', 'zto_database_historical_price.rds'))
-      return(dt_database_mc)
+      return(dt_database_hp)
       
    })   
    
    dt_con_financialdata = eventReactive(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
       dt_database_fd = readRDS(file = file.path('data', 'zto_database_financial_data.rds'))
-      return(dt_database_mc)
+      return(dt_database_fd)
       
    })      
    
@@ -792,32 +792,8 @@ server_app = function(input, output, session) {
          )
       )
    })
-   
-   
-   dt_trial = eventReactive(input$bck_addCompanyBtn, {
+
       
-      dt_database_mc = dt_con_companies()
-      
-      new_data_mc = data.table(
-         company_id = input$bck_companySymbolInput,
-         company_name = input$bck_companyNameInput,
-         industry = input$bck_industryInput,
-         market = input$bck_marketInput,
-         headquarters = input$bck_headquartersInput,
-         founded_year = input$bck_foundedYearInput,
-         status = input$bck_statusInput,
-         historical_data =  NA_integer_,
-         historical_data_update =  NA_character_,
-         financial_data =  NA_integer_,
-         financial_data_update =  NA_character_,
-         ratios_data =  NA_integer_,
-         ratios_data_update =  NA_character_
-      )
-      
-      return(new_data_mc)
-      
-   })
-   
    observeEvent(input$bck_addCompanyBtn, {
       
       dt_database_mc = dt_con_companies()
@@ -868,9 +844,9 @@ server_app = function(input, output, session) {
       
       observeEvent(input$bck_delete, {
          
-         dt_database_mc = dt_con_companies()
-         dt_database_hp = dt_con_historicaldata()
-         dt_database_fd = dt_con_financialdata()
+         dt_database_mc = copy(dt_con_companies())
+         dt_database_hp = copy(dt_con_historicaldata())
+         dt_database_fd = copy(dt_con_financialdata())
       
          #### Remove records
          dt_database_mc = dt_database_mc[!company_id %in% input$bck_select_list]
