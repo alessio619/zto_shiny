@@ -909,18 +909,19 @@ server_app = function(input, output, session) {
       })
       
       observeEvent(input$edit_bck_addCompanyBtn, {
-         # Retrieve values from inputs
-         company_id = input$edit_companySymbolInput
-         company_name = input$edit_companyNameInput
-         industry = input$edit_industryInput
-         market = input$edit_marketInput
-         headquarters = input$edit_headquartersInput
-         founded_year = input$edit_foundedYearInput
-         status = input$edit_statusInput
          
-         # Insert a new row into the my_companies table
-         dbExecute(connn, update_newcompany_query,
-                   list(company_name, industry, market, headquarters, founded_year, status, company_id))
+         dt_database_mc = dt_con_companies()
+         
+         dt_database_mc[company_id == input$bck_select_list]$company_id = input$edit_companySymbolInput
+         dt_database_mc[company_id == input$bck_select_list]$company_name = input$edit_companyNameInput
+         dt_database_mc[company_id == input$bck_select_list]$industry = input$edit_industryInput
+         dt_database_mc[company_id == input$bck_select_list]$market = input$edit_marketInput
+         dt_database_mc[company_id == input$bck_select_list]$headquarters = input$edit_headquartersInput
+         dt_database_mc[company_id == input$bck_select_list]$founded_year = input$edit_foundedYearInput
+         dt_database_mc[company_id == input$bck_select_list]$status = input$edit_statusInput
+         
+         #### Export
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
          
          removeModal()
       })   
