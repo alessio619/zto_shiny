@@ -156,7 +156,7 @@ in_exp_button_downloadPrice =
    downloadButton(
       outputId = 'exp_button_downloadPrice',
       label = 'Download',
-      class = 'btn-danger',
+      class = 'btn-warning',
       icon = shiny::icon("floppy-disk"),
       style = 'width: 100%;'
    )
@@ -166,7 +166,7 @@ in_exp_button_downloadFinancials =
    downloadButton(
       outputId = 'exp_button_downloadFinancials',
       label = 'Download',
-      class = 'btn-danger',
+      class = 'btn-warning',
       icon = shiny::icon("floppy-disk"),
       style = 'width: 100%;'
    )
@@ -408,7 +408,7 @@ bck_edit_statusInput =
 
 
 
-## Edit / Remove company --------------------------------------------------------
+### Edit / Remove company --------------------------------------------------------
 
 ### Refesh list
 in_bck_refresh_backend =
@@ -438,12 +438,12 @@ in_bck_delete_company =
       width = '100%')
 
 
-## Actions from modals -------
+### Actions from modals -------
 in_bck_button_downloadPrice = 
    downloadButton(
       outputId = 'bck_button_downloadPrice',
       label = 'Download',
-      class = 'btn-danger',
+      class = 'btn-warning',
       icon = shiny::icon("floppy-disk")
    )
 
@@ -451,6 +451,19 @@ in_bck_button_downloadFinancial =
    downloadButton(
       outputId = 'bck_button_downloadFinancial',
       label = 'Download',
-      class = 'btn-danger',
+      class = 'btn-warning',
       icon = shiny::icon("floppy-disk")
+   )
+
+
+### Backup ----
+
+### Download Tickers Price data
+in_bck_button_backup = 
+   downloadButton(
+      outputId = 'bck_button_backup',
+      label = 'Backup',
+      class = 'btn-warning',
+      icon = shiny::icon("database"),
+      style = 'width: 100%;'
    )

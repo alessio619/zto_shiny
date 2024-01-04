@@ -839,7 +839,6 @@ server_app = function(input, output, session) {
    
    
    
-   
    ### Update selector
    observeEvent(c(input$bck_refresh_backend, input$exp_button_fetchTickers, input$exp_button_fetchFinancials), {
       
@@ -1135,6 +1134,33 @@ server_app = function(input, output, session) {
 
       ))
    })
+   
+   
+   ## Backup ----------------------------------
+   
+   output$bck_button_backup = downloadHandler(
+      
+      filename = function() {
+         "backup_db.zip"
+      },
+      
+      content = function(file) {
+         # Create temporary files
+         temp_files <- sapply(1:3, function(x) tempfile(fileext = ".csv"))
+         
+         # Write data frames to temporary files
+         fwrite(dt_con_companies(), temp_files[1])
+         fwrite(dt_con_historicaldata(), temp_files[2])
+         fwrite(dt_con_financialdata(), temp_files[3])
+         
+         names(temp_files) <- c("my_companies.csv", "historical_price.csv", "financial_data.csv")
+         
+         # Zip the files
+         zip(file, files = temp_files, extras = "-j")
+         
+      }
+   )
+   
 
    ## END --------------
    
