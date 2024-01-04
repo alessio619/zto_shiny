@@ -493,9 +493,9 @@ server_app = function(input, output, session) {
          saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
          saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
          
-         showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
+         showNotification(paste('Historical data added to', input$exp_select_AddCompany), type = 'warning')
 
-         } else if(input$exp_data2add == 'exp_add_data_financial') {
+      } else if(input$exp_data2add == 'exp_add_data_financial') {
             
          dt_database_fd = dt_con_financialdata()
 
@@ -516,7 +516,7 @@ server_app = function(input, output, session) {
          saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
 
 
-         showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         showNotification(paste('Financial data added to', input$exp_select_AddCompany), type = 'warning')
 
 
       } else if(input$exp_data2add == 'exp_add_data_both') {
@@ -558,7 +558,7 @@ server_app = function(input, output, session) {
          saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
 
 
-         showNotification(paste('Historical and Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         showNotification(paste('Historical and Financial data added for', input$exp_select_AddCompany), type = 'warning')
 
       } else {
          print('None')
@@ -646,73 +646,103 @@ server_app = function(input, output, session) {
       if (is.null(x))
          x = character(0)
       
-      if(tickers_data_available$tickers_hd %in% x && !tickers_data_available$tickers_fd %in% x) {
+      dt_database_mc = dt_con_companies()
       
-      new_records = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
-      new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
+      if(x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd) {
       
       w$show()
       
       tryCatch({ 
          
-      dbExecute(connn, insert_newhistoricaldata_query,
-                list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
-      
-      dbExecute(connn, update_historical_data_date_query,
-                list(as.character(Sys.Date()), input$exp_select_AddCompany))
-      
+         dt_database_hp = dt_con_historicaldata()
+         dt_database_hp = dt_database_hp[!company_id %in% input$exp_select_AddCompany]
+         
+         
+         #### Prepare data
+         new_records_hp = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
+         new_records_hp = new_records_hp[, .(company_id = ticker, index = as.character(index), closing = round(adjusted, 2), volume = round(volume, 2))]
+         
+         #### Add the data to the DB
+         dt_database_hp = rbind(dt_database_hp, new_records_hp)
+         dt_database_hp = dt_database_hp[!is.na(dt_database_hp$company_id)]
+         
+         #### Update date on my_companies
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 'View Data'
+         
+         #### Export
+         saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
+         
       }, error = function(e) {
          print('error')
       })
       
       on.exit({
          w$hide()
-         
          showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
-         
       })
       
-      } else if(!tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
+      } else if(!x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
       
          w$show()
          
       tryCatch({
 
-         dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-         dtw[, id := .I]
-         dtw[, date := as.character(Sys.Date())]
+         dt_database_fd = dt_con_financialdata()
+         dt_database_fd = dt_database_fd[!company_id %in% input$exp_select_AddCompany]
          
-         dbExecute(connn, insert_newfinancialdata_query,
-                   list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+         #### Prepare data
+         new_records_fd = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+         new_records_fd[, index := as.character(Sys.Date())]
          
-         dbExecute(connn, update_financial_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+         #### Add the data to the DB
+         dt_database_fd = rbind(dt_database_fd, new_records_fd)
+         dt_database_fd = dt_database_fd[!is.na(dt_database_fd$company_id)]
+         
+         #### Update date on my_companies
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data_update = as.character(Sys.Date())
+         dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data = 'View Data'
+         
+         #### Export
+         saveRDS(dt_database_fd, file = file.path('data', 'zto_database_financial_data.rds'))
+         saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
          
       }, error = function(e) {
          showNotification('Data already updated.', type = 'warning')         
       })
          
-         showNotification(paste('Financial data updated for', input$exp_select_AddCompany), type = 'warning')
+         showNotification(paste('Financial data updated to', input$exp_select_AddCompany), type = 'warning')
          
          on.exit({
             w$hide()
          })
          
-      } else if(tickers_data_available$tickers_hd %in% x && tickers_data_available$tickers_fd %in% x) {
-         
-         new_records = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
-         new_records = new_records[, .(company_id = ticker, date = as.character(index), closing_price = adjusted, volume = volume)]
+      } else if(x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
          
          w$show()
          
-         
          tryCatch({
             
-         dbExecute(connn, insert_newhistoricaldata_query,
-                   list(new_records$company_id, new_records$date, new_records$closing_price, new_records$volume))
-         
-         dbExecute(connn, update_historical_data_date_query,
-                   list(as.character(Sys.Date()), input$exp_select_AddCompany))
+            dt_database_hp = dt_con_historicaldata()
+            
+            dt_database_hp = dt_database_hp[!company_id %in% input$exp_select_AddCompany]
+            
+            #### Prepare data
+            new_records_hp = dt_fetchedTickers()[ticker == input$exp_select_AddCompany]
+            new_records_hp = new_records_hp[, .(company_id = ticker, index = as.character(index), closing = round(adjusted, 2), volume = round(volume, 2))]
+            
+            #### Add the data to the DB
+            dt_database_hp = rbind(dt_database_hp, new_records_hp)
+            dt_database_hp = dt_database_hp[!is.na(dt_database_hp$company_id)]
+            
+            #### Update date on my_companies
+            dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data_update = as.character(Sys.Date())
+            dt_database_mc[company_id %in% input$exp_select_AddCompany]$historical_data = 'View Data'
+            
+            #### Export
+            saveRDS(dt_database_hp, file = file.path('data', 'zto_database_historical_price.rds'))
+            saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
          
          }, error = function(e) {
             print('error')
@@ -720,15 +750,24 @@ server_app = function(input, output, session) {
          
          tryCatch({
             
-            dtw = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
-            dtw[, id := .I]
-            dtw[, date := as.character(Sys.Date())]
+            dt_database_fd = dt_con_financialdata()
+            dt_database_fd = dt_database_fd[!company_id %in% input$exp_select_AddCompany]
             
-            dbExecute(connn, insert_newfinancialdata_query,
-                      list(dtw$id, dtw$company_id, dtw$date, dtw$stmt, dtw$type, dtw$voice, dtw$time, dtw$value))
+            #### Prepare data
+            new_records_fd = record_statements(dt_fetchedFinancials(), input$exp_select_AddCompany)
+            new_records_fd[, index := as.character(Sys.Date())]
             
-            dbExecute(connn, update_financial_data_date_query,
-                      list(as.character(Sys.Date()), input$exp_select_AddCompany))
+            #### Add the data to the DB
+            dt_database_fd = rbind(dt_database_fd, new_records_fd)
+            dt_database_fd = dt_database_fd[!is.na(dt_database_fd$company_id)]
+            
+            #### Update date on my_companies
+            dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data_update = as.character(Sys.Date())
+            dt_database_mc[company_id %in% input$exp_select_AddCompany]$financial_data = 'View Data'
+            
+            #### Export
+            saveRDS(dt_database_fd, file = file.path('data', 'zto_database_financial_data.rds'))
+            saveRDS(dt_database_mc, file = file.path('data', 'zto_database_my_companies.rds'))
             
          }, error = function(e) {
             print('error')
@@ -750,8 +789,6 @@ server_app = function(input, output, session) {
             ))
          
       }
-      
-      dbExecute(connn, update_availabledata_query)
       
       removeModal()
       
