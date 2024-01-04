@@ -18,8 +18,7 @@ box::use(reactable.extras[...])
 box::use(highcharter[...])
 box::use(shinyWidgets[...])
 box::use(bsicons[...])
-# box::use(RSQLite[...])
-# box::use(DBI[...])
+box::use(shinymanager[...])
 
 
 
@@ -43,4 +42,15 @@ engm_equities_list = setDT(read.csv2(file.path('data', 'engm_equities_list.csv')
 
 
 
+## Credentials ----------------------------------------------------------------
+
+credentials <- data.frame(
+   user = c("master", "nic", 'guest'), # mandatory
+   password = c("azerty", "azerty", 'D10S'), # mandatory
+   start = c("2024-01-01", '2024-01-01', '2024-01-01'), # optinal (all others)
+   expire = c(NA, NA, NA),
+   admin = c(TRUE, FALSE, FALSE),
+   comment = "",
+   stringsAsFactors = FALSE
+)
 

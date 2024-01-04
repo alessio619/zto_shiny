@@ -14,6 +14,8 @@ options(highcharter.theme = zto_hc_theme)
 
 ui_app =
    
+   secure_app(
+   
    # HEADER ================================================================================
 
 
@@ -127,5 +129,7 @@ navbarPage(
    tags$style(HTML(
       ' .bslib-sidebar-layout.sidebar-right>.collapse-toggle>.collapse-icon {color: #4C6279;}'
    ))
+   
+)
    
 )

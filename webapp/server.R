@@ -3,6 +3,12 @@
 
 server_app = function(input, output, session) {
    
+   ## Security login -------
+   
+   res_auth <- secure_server(
+      check_credentials = check_credentials(credentials)
+   )
+   
    ## 01_explorer --------------------------------------------------------
    
    ### A. Retrieve Data --------------------------------------------------------
@@ -594,19 +600,19 @@ server_app = function(input, output, session) {
       if (is.null(x))
          x = character(0)
       
-      if(x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd) {
+      if(any(x %in% tickers_data_available$tickers_hd) && any(!x %in% tickers_data_available$tickers_fd)) {
          
          updateRadioButtons(session, 'exp_data2add',
                             choices = c('Market' = 'exp_add_data_market', 'None' = 'exp_add_data_none'),
                             selected = 'exp_add_data_market')
          
-      } else if(!x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+      } else if(any(!x %in% tickers_data_available$tickers_hd) && any(x %in% tickers_data_available$tickers_fd)) {
          
          updateRadioButtons(session, 'exp_data2add',
                             choices = c('Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
                             selected = 'exp_add_data_financial')
          
-      } else if(x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+      } else if(any(x %in% tickers_data_available$tickers_hd) && any(x %in% tickers_data_available$tickers_fd)) {
          
          updateRadioButtons(session, 'exp_data2add',
                             choices = c('Both' = 'exp_add_data_both', 'Market' = 'exp_add_data_market', 'Financial' = 'exp_add_data_financial', 'None' = 'exp_add_data_none'),
@@ -648,7 +654,7 @@ server_app = function(input, output, session) {
       
       dt_database_mc = dt_con_companies()
       
-      if(x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd) {
+      if(any(x %in% tickers_data_available$tickers_hd) && any(!x %in% tickers_data_available$tickers_fd)) {
       
       w$show()
       
@@ -683,7 +689,7 @@ server_app = function(input, output, session) {
          showNotification(paste('Historical data updated for', input$exp_select_AddCompany), type = 'warning')
       })
       
-      } else if(!x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+      } else if(any(!x %in% tickers_data_available$tickers_hd) && any(x %in% tickers_data_available$tickers_fd)) {
       
          w$show()
          
@@ -718,7 +724,7 @@ server_app = function(input, output, session) {
             w$hide()
          })
          
-      } else if(x %in% tickers_data_available$tickers_hd && x %in% tickers_data_available$tickers_fd) {
+      } else if(any(x %in% tickers_data_available$tickers_hd) && any(x %in% tickers_data_available$tickers_fd)) {
          
          w$show()
          
@@ -1138,17 +1144,17 @@ server_app = function(input, output, session) {
    # })
    
 
-   output$texto = renderPrint({
-
-      req(ticker_list())
-      x = ticker_list()
-      x = x[input$exp_select_AddCompany == x]
-      if (is.null(x))
-         x = character(0)
-
-
-      x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd
-
-   })
+   # output$texto = renderPrint({
+   # 
+   #    req(ticker_list())
+   #    x = ticker_list()
+   #    x = x[input$exp_select_AddCompany == x]
+   #    if (is.null(x))
+   #       x = character(0)
+   # 
+   # 
+   #    x %in% tickers_data_available$tickers_hd && !x %in% tickers_data_available$tickers_fd
+   # 
+   # })
   
 }

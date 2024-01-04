@@ -267,6 +267,8 @@ record_statements = function(DT, COMPANY) {
    
    dtw = rbindlist(list(dtw_bsy, dtw_iny, dtw_csy, dtw_inq, dtw_csq))
    
+   dtw[, value := round(value, 2)]
+   
    setnames(dtw, 'id', 'company_id')
    
    return(dtw)
