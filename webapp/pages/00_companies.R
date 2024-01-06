@@ -15,7 +15,7 @@ page_backend =  fluidPage(
        ## From DB --------------------------------------------------
              accordion(
                 accordion_panel(
-                   title = h2('Database', style = 'color: #4C6279'),
+                   title = h3('Database', style = 'color: #4C6279'),
                    in_bck_refresh_backend,
                    br(), br(),
                    in_bck_button_backup,

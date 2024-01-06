@@ -2,7 +2,6 @@
 # DB Management ================================================================================
 
 
-# Load the RSQLite package
 library(data.table)
 source(file.path('webapp', 'financial.R'))
 

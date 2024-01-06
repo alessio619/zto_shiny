@@ -5,9 +5,9 @@ server_app = function(input, output, session) {
    
    ## Security login -------
    
-   res_auth <- secure_server(
-      check_credentials = check_credentials(credentials)
-   )
+   # res_auth <- secure_server(
+      # check_credentials = check_credentials(credentials)
+   # )
    
    ## 01_explorer --------------------------------------------------------
    
